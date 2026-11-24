@@ -1,0 +1,1068 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Car Salon Demo">
+  <meta name="description" content="A fictional Car Salon mobile preview. No real bookings are made.">
+  <title>Car Salon | Mobile Demo</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07191c;
+      --panel: #10292d;
+      --panel-soft: #142f33;
+      --line: rgba(221, 247, 244, .12);
+      --text: #f3f8f5;
+      --muted: #a7bcb8;
+      --mint: #a4f0dc;
+      --mint-ink: #06221e;
+      --amber: #edc49c;
+      --danger: #ffb2a8;
+      --radius: 22px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: var(--bg); }
+    body { margin: 0; min-height: 100vh; background: radial-gradient(ellipse at 50% -12%, #16484a 0, #0a2428 39%, var(--bg) 76%); }
+    button, input, select, textarea { font: inherit; }
+    button { color: inherit; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; }
+    .app-shell { width: min(100%, 560px); min-height: 100vh; margin: 0 auto; padding: max(16px, env(safe-area-inset-top)) 18px calc(106px + env(safe-area-inset-bottom)); }
+    .topbar { display:flex; align-items:center; justify-content:space-between; min-height:56px; margin-bottom: 22px; }
+    .brand { display:flex; align-items:center; gap:10px; color:var(--text); text-decoration:none; font-size:17px; font-weight:760; letter-spacing:-.035em; }
+    .brand-mark { display:grid; place-items:center; width:38px; height:38px; border:1px solid rgba(164,240,220,.31); border-radius:14px; background:rgba(164,240,220,.1); color:var(--mint); }
+    .brand-mark svg { width:23px; height:23px; }
+    .top-action { display:flex; align-items:center; gap:7px; border:1px solid var(--line); border-radius:999px; padding:9px 12px; background:rgba(255,255,255,.045); color:var(--text); font-size:12px; font-weight:650; cursor:pointer; }
+    .count { min-width:20px; height:20px; display:grid; place-items:center; border-radius:99px; background:var(--mint); color:var(--mint-ink); font-size:11px; font-weight:800; }
+    .view { display:none; animation: arrive .22s ease-out; }
+    .view.active { display:block; }
+    @keyframes arrive { from { opacity:.5; transform:translateY(5px); } to { opacity:1; transform:none; } }
+    .eyebrow { display:block; color:var(--mint); text-transform:uppercase; letter-spacing:.17em; font-size:10px; font-weight:750; }
+    h1, h2, h3, p { margin-top:0; }
+    h1 { max-width:440px; margin:11px 0 10px; font-size:clamp(34px,9vw,48px); line-height:1.03; letter-spacing:-.055em; font-weight:750; }
+    .intro { max-width:440px; margin:0; color:#c0d1cd; font-size:14px; line-height:1.65; }
+    .hinglish-note { margin:14px 0 0; padding-left:12px; border-left:2px solid rgba(164,240,220,.63); color:#d6e6e1; font-size:12px; line-height:1.55; }
+    .demo-entry { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:16px 0 0; padding:13px 14px; border:1px solid rgba(164,240,220,.24); border-radius:17px; background:linear-gradient(110deg,rgba(164,240,220,.09),rgba(255,255,255,.025)); }
+    .demo-entry-copy { min-width:0; }
+    .demo-entry-copy strong { display:block; margin-bottom:4px; color:var(--mint); font-size:12px; }
+    .demo-entry-copy span { display:block; color:#c1d1cd; font-size:10px; line-height:1.45; }
+    .demo-entry .secondary-action { width:auto; min-width:max-content; margin:0; padding:0 13px; }
+    .demo-tag { display:inline-flex; align-items:center; margin:0 0 7px; padding:4px 7px; border:1px solid rgba(237,196,156,.35); border-radius:999px; background:rgba(237,196,156,.11); color:#e7cfb6; font-size:9px; font-weight:800; letter-spacing:.09em; }
+    .car-card { position:relative; margin:22px -2px 22px; min-height:182px; display:flex; align-items:center; overflow:hidden; border:1px solid var(--line); border-radius:26px; background:linear-gradient(135deg,rgba(40,103,99,.32),rgba(12,34,39,.94) 58%,rgba(10,23,29,.95)); }
+    .car-copy { position:relative; z-index:2; padding:20px 0 20px 18px; width:48%; }
+    .car-copy strong { display:block; margin-bottom:6px; font-size:14px; }
+    .car-copy span { display:block; color:var(--muted); font-size:11px; line-height:1.5; }
+    .car-stage { width:52%; height:176px; display:grid; place-items:center; }
+    .car-image, .profile-car { grid-area:1/1; width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 14px 18px rgba(0,0,0,.32)); }
+    .profile-car { overflow:visible; animation:vehicleFloat 3.2s ease-in-out infinite; }
+    .profile-car .wheel-spin { transform-box:fill-box; transform-origin:center; animation:wheelSpin 4s linear infinite; }
+    @keyframes vehicleFloat { 0%,100% { transform:translateY(0) rotate(-.2deg); } 50% { transform:translateY(-5px) rotate(.4deg); } }
+    @keyframes wheelSpin { to { transform:rotate(360deg); } }
+    .section-head { display:flex; justify-content:space-between; align-items:end; gap:12px; margin:25px 0 12px; }
+    .section-head h2 { margin:0; font-size:20px; letter-spacing:-.035em; }
+    .section-head span { color:var(--muted); font-size:11px; }
+    .service-list { display:grid; gap:10px; }
+    .service-card { width:100%; display:flex; align-items:center; gap:13px; text-align:left; padding:14px; border:1px solid var(--line); border-radius:19px; background:linear-gradient(110deg,rgba(255,255,255,.06),rgba(255,255,255,.025)); cursor:pointer; transition:border-color .18s ease, transform .18s ease, background .18s ease; }
+    .service-card:active { transform:scale(.99); }
+    .service-card:hover { border-color:rgba(164,240,220,.42); background:rgba(255,255,255,.075); }
+    .service-icon { flex:none; width:46px; height:46px; display:grid; place-items:center; border-radius:15px; background:rgba(164,240,220,.105); color:var(--mint); }
+    .service-icon svg { width:23px; height:23px; }
+    .service-copy { min-width:0; flex:1; }
+    .service-copy strong { display:block; margin-bottom:4px; font-size:14px; }
+    .service-copy span { color:var(--muted); font-size:11px; line-height:1.4; }
+    .service-arrow { flex:none; color:var(--mint); font-size:21px; }
+    .featured-prices { margin-top:28px; }
+    .featured-prices .eyebrow { margin-bottom:9px; }
+    .featured-prices h2 { margin:0 0 6px; font-size:25px; line-height:1.1; letter-spacing:-.04em; }
+    .featured-prices > p { margin:0 0 13px; color:var(--muted); font-size:11px; line-height:1.5; }
+    .featured-price-list { display:grid; gap:9px; }
+    .featured-price-card { padding:15px 14px; border:1px solid rgba(164,240,220,.14); border-radius:17px; background:#12383a; }
+    .featured-price-card h3 { margin:0 0 14px; color:var(--text); font-size:13px; line-height:1.4; }
+    .featured-price-card dl { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:0; }
+    .featured-price-card dl > div { min-width:0; }
+    .featured-price-card dt { margin:0 0 3px; color:var(--muted); font-size:9px; font-weight:700; line-height:1.25; }
+    .featured-price-card dd { margin:0; color:var(--mint); font-size:15px; font-weight:750; font-variant-numeric:tabular-nums; }
+    .featured-prices .featured-note { margin:12px 0 0; }
+    .price-chart { margin-top:25px; }
+    .price-chart h2 { margin:0 0 6px; font-size:20px; letter-spacing:-.035em; }
+    .price-chart > p { color:var(--muted); font-size:11px; line-height:1.5; margin:0 0 12px; }
+    .price-table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:19px; background:rgba(255,255,255,.035); }
+    .price-table { width:100%; min-width:480px; border-collapse:collapse; font-size:12px; line-height:1.4; }
+    .price-table th, .price-table td { padding:11px 9px; border-bottom:1px solid var(--line); text-align:right; vertical-align:top; white-space:nowrap; }
+    .price-table th:first-child { width:48%; text-align:left; white-space:normal; }
+    .price-table thead th { color:var(--mint); font-size:10px; font-weight:750; }
+    .price-table tbody th { color:var(--text); font-weight:650; }
+    .price-select { display:block; min-height:44px; margin-top:5px; padding:6px 13px; border:1px solid rgba(164,240,220,.38); border-radius:11px; background:rgba(164,240,220,.1); color:var(--mint); font-size:11px; font-weight:750; cursor:pointer; }
+    .price-select:hover { background:rgba(164,240,220,.2); }
+    .booking-price { margin:0 0 15px; padding:12px 13px; border:1px solid rgba(164,240,220,.2); border-radius:13px; background:rgba(164,240,220,.08); color:var(--mint); font-size:13px; line-height:1.45; }
+    .price-table tbody td { color:#d6e6e1; font-variant-numeric:tabular-nums; }
+    .price-table tbody tr:last-child > * { border-bottom:0; }
+    .promise { margin-top:17px; padding:13px 14px; display:flex; gap:10px; align-items:flex-start; border:1px solid rgba(164,240,220,.13); border-radius:17px; background:rgba(164,240,220,.055); color:#c9d9d5; font-size:11px; line-height:1.55; }
+    .promise svg { flex:none; width:17px; height:17px; margin-top:1px; color:var(--mint); }
+    .screen-title { margin:8px 0 7px; font-size:30px; line-height:1.1; letter-spacing:-.045em; }
+    .screen-subtitle { margin:0 0 20px; color:var(--muted); font-size:13px; line-height:1.55; }
+    .back-button { display:inline-flex; align-items:center; gap:8px; margin:0 0 18px; padding:0; border:0; background:none; color:var(--mint); font-size:13px; font-weight:700; cursor:pointer; }
+    .form-card { padding:17px; border:1px solid var(--line); border-radius:23px; background:rgba(16,41,45,.88); }
+    .form-section-title { margin:0 0 13px; color:var(--mint); font-size:10px; font-weight:750; text-transform:uppercase; letter-spacing:.15em; }
+    .field { display:grid; gap:7px; margin-bottom:14px; }
+    .field label { color:#e2ece8; font-size:12px; font-weight:650; }
+    .field input, .field select, .field textarea { width:100%; min-height:48px; padding:12px 13px; border:1px solid rgba(221,247,244,.16); border-radius:13px; background:#0b2024; color:var(--text); font-size:14px; }
+    .field input::placeholder, .field textarea::placeholder { color:#839b97; }
+    .field textarea { min-height:72px; resize:vertical; }
+    .field-hint { margin-top:-2px; color:var(--muted); font-size:10px; line-height:1.45; }
+    .two-fields { display:grid; grid-template-columns:1fr 1fr; gap:11px; }
+    .slots { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:0 0 7px; }
+    .slot { min-height:46px; padding:9px 8px; border:1px solid rgba(221,247,244,.16); border-radius:13px; background:#0b2024; color:#eaf2ef; font-size:12px; font-weight:600; cursor:pointer; }
+    .slot[aria-pressed="true"] { border-color:var(--mint); background:rgba(164,240,220,.13); color:var(--mint); box-shadow:inset 0 0 0 1px rgba(164,240,220,.18); }
+    .slot:disabled { opacity:.42; cursor:not-allowed; text-decoration:line-through; }
+    .availability-note { margin:0 0 17px; color:#d7c3aa; font-size:10px; line-height:1.5; }
+    .consent-note { margin:5px 0 15px; padding:11px 12px; border-radius:12px; background:rgba(237,196,156,.08); color:#e7cfb6; font-size:10px; line-height:1.55; }
+    .primary-action { width:100%; min-height:52px; display:flex; align-items:center; justify-content:center; gap:9px; border:0; border-radius:16px; background:var(--mint); color:var(--mint-ink); font-size:14px; font-weight:800; letter-spacing:-.01em; cursor:pointer; }
+    .primary-action:disabled { opacity:.5; cursor:wait; }
+    .form-error { margin:11px 0 0; color:var(--danger); font-size:12px; line-height:1.45; }
+    .success-card { padding:24px 18px; border:1px solid rgba(164,240,220,.3); border-radius:24px; background:linear-gradient(145deg,rgba(164,240,220,.14),rgba(16,41,45,.8)); text-align:center; }
+    .success-mark { width:58px; height:58px; display:grid; place-items:center; margin:0 auto 15px; border-radius:50%; background:var(--mint); color:var(--mint-ink); font-size:27px; font-weight:800; }
+    .success-card h2 { margin:0 0 8px; font-size:23px; letter-spacing:-.04em; }
+    .success-card p { margin:0 auto 12px; max-width:310px; color:#c2d3cf; font-size:12px; line-height:1.55; }
+    .request-code { display:inline-block; margin:2px 0 18px; padding:8px 11px; border:1px solid var(--line); border-radius:10px; color:var(--mint); font-size:11px; font-weight:750; letter-spacing:.08em; }
+    .secondary-action { width:100%; min-height:48px; margin-top:9px; border:1px solid rgba(221,247,244,.17); border-radius:14px; background:rgba(255,255,255,.035); color:var(--text); font-size:13px; font-weight:700; cursor:pointer; }
+    .booking-list { display:grid; gap:11px; }
+    .booking-item { padding:15px; border:1px solid var(--line); border-radius:19px; background:linear-gradient(135deg,rgba(255,255,255,.065),rgba(255,255,255,.025)); }
+    .booking-item-top { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+    .booking-item h3 { margin:0 0 5px; font-size:15px; }
+    .booking-item-date { color:var(--mint); font-size:12px; font-weight:700; }
+    .local-badge { flex:none; padding:6px 8px; border:1px solid rgba(164,240,220,.2); border-radius:999px; color:var(--mint); font-size:9px; font-weight:700; }
+    .booking-detail { margin:10px 0 0; color:#c1d1cd; font-size:11px; line-height:1.6; overflow-wrap:anywhere; }
+    .booking-id { margin-top:11px; padding-top:9px; border-top:1px solid var(--line); color:var(--muted); font-size:10px; }
+    .auth-status { display:grid; gap:5px; margin:0 0 16px; padding:13px 14px; border:1px solid rgba(237,196,156,.2); border-radius:16px; background:rgba(237,196,156,.07); color:#e8d3bd; font-size:11px; line-height:1.55; }
+    .auth-status strong { color:var(--amber); font-size:12px; }
+    .phone-auth-card { margin:0 0 16px; padding:15px; border:1px solid rgba(164,240,220,.2); border-radius:19px; background:rgba(164,240,220,.045); }
+    .phone-auth-card h2 { margin:0 0 5px; font-size:16px; letter-spacing:-.025em; }
+    .phone-auth-card > p { margin:0 0 12px; color:var(--muted); font-size:11px; line-height:1.5; }
+    .phone-auth-card .field { margin-bottom:10px; }
+    .phone-auth-card .primary-action:disabled { cursor:not-allowed; }
+    .otp-pending { margin:11px 0 0 !important; color:#e7cfb6 !important; font-size:10px !important; }
+    .profile-id-card { margin-bottom:12px; padding:15px; border:1px solid rgba(164,240,220,.22); border-radius:17px; background:rgba(164,240,220,.07); }
+    .profile-id-card strong { display:block; margin:6px 0; color:var(--mint); font-size:16px; letter-spacing:.05em; overflow-wrap:anywhere; }
+    .profile-id-card p { margin:0; color:var(--muted); font-size:10px; line-height:1.5; }
+    .profile-summary, .booking-profile-summary { padding:14px; border:1px solid var(--line); border-radius:17px; background:rgba(255,255,255,.035); }
+    .profile-summary { margin-bottom:12px; }
+    .profile-summary strong, .booking-profile-summary strong { display:block; margin-bottom:5px; font-size:14px; }
+    .profile-summary span, .booking-profile-summary span { display:block; color:#c1d1cd; font-size:11px; line-height:1.6; overflow-wrap:anywhere; }
+    .booking-profile-summary { margin-bottom:9px; }
+    .booking-profile-summary .profile-customer-id { color:var(--mint); font-size:10px; letter-spacing:.035em; }
+    .profile-only-note { margin:10px 0 0; color:#e7cfb6; font-size:10px; line-height:1.5; }
+    .empty-state { padding:28px 18px; border:1px dashed rgba(221,247,244,.18); border-radius:21px; text-align:center; }
+    .empty-icon { width:54px; height:54px; display:grid; place-items:center; margin:0 auto 13px; border-radius:17px; background:rgba(164,240,220,.09); color:var(--mint); font-size:23px; }
+    .empty-state h2 { margin:0 0 7px; font-size:17px; }
+    .empty-state p { margin:0; color:var(--muted); font-size:12px; line-height:1.55; }
+    .privacy-foot { margin:18px 3px 0; color:#829894; font-size:10px; line-height:1.55; }
+    .tabbar { position:fixed; z-index:10; left:50%; bottom:0; transform:translateX(-50%); width:min(100%,560px); padding:8px 18px max(10px,env(safe-area-inset-bottom)); display:grid; grid-template-columns:repeat(4,1fr); gap:7px; border-top:1px solid rgba(221,247,244,.12); background:rgba(6,22,25,.95); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); }
+    .tab { min-height:52px; display:grid; justify-items:center; align-content:center; gap:4px; border:0; border-radius:13px; background:transparent; color:#92a9a4; font-size:10px; font-weight:650; cursor:pointer; }
+    .tab svg { width:19px; height:19px; }
+    .tab.active { background:rgba(164,240,220,.105); color:var(--mint); }
+    .toast { position:fixed; z-index:30; left:50%; bottom:calc(85px + env(safe-area-inset-bottom)); transform:translate(-50%,10px); max-width:calc(100vw - 34px); padding:11px 14px; border:1px solid var(--line); border-radius:14px; background:#18363a; color:var(--text); box-shadow:0 12px 36px rgba(0,0,0,.25); font-size:12px; line-height:1.4; opacity:0; pointer-events:none; transition:opacity .18s ease, transform .18s ease; }
+    .toast.show { opacity:1; transform:translate(-50%,0); }
+    /* Monochrome mobile theme */
+    :root { color-scheme:light; --bg:#fff; --panel:#f7f7f7; --panel-soft:#f3f3f3; --line:#d9d9d9; --text:#111; --muted:#494949; --mint:#111; --mint-ink:#fff; --amber:#111; --danger:#111; }
+    body { background:#fff; }
+    .intro, .hinglish-note, .demo-entry-copy span, .price-table tbody td, .promise, .field label,
+    .availability-note, .consent-note, .success-card p, .booking-detail, .auth-status,
+    .profile-summary span, .booking-profile-summary span, .profile-only-note, .privacy-foot { color:#333; }
+    .hinglish-note { border-color:#333; }
+    .brand-mark, .service-icon, .empty-icon { background:#ededed; border-color:#d3d3d3; color:#111; }
+    .top-action, .secondary-action, .price-select { background:#fff; border-color:#bdbdbd; color:#111; }
+    .top-action:hover, .secondary-action:hover, .price-select:hover { background:#e9e9e9; border-color:#111; }
+    .demo-entry, .car-card, .service-card, .featured-price-card, .price-table-wrap,
+    .promise, .form-card, .booking-item, .phone-auth-card, .profile-id-card,
+    .profile-summary, .booking-profile-summary, .booking-price, .success-card, .auth-status {
+      background:#f7f7f7; border-color:#d8d8d8; color:#111;
+    }
+    .demo-tag, .local-badge { background:#ededed; border-color:#c8c8c8; color:#111; }
+    .car-image, .profile-car { filter:grayscale(1) drop-shadow(0 8px 12px rgba(0,0,0,.15)); }
+    .service-card:hover { background:#ededed; border-color:#aaa; }
+    .field input, .field select, .field textarea, .slot { background:#fff; border-color:#b9b9b9; color:#111; }
+    .field input::placeholder, .field textarea::placeholder { color:#626262; }
+    .slot[aria-pressed="true"] { background:#e5e5e5; border-color:#111; color:#111; box-shadow:inset 0 0 0 1px #111; }
+    .consent-note { background:#eaeaea; }
+    .primary-action, .success-mark { background:#111; color:#fff; }
+    .form-error { color:#111; font-weight:700; border-left:3px solid #111; padding-left:9px; }
+    .otp-pending { color:#333 !important; }
+    .empty-state { border-color:#aaa; }
+    .tabbar { background:rgba(255,255,255,.97); border-color:#d8d8d8; }
+    .tab { color:#444; }
+    .tab.active { background:#e9e9e9; color:#111; }
+    .toast { background:#f3f3f3; color:#111; box-shadow:0 8px 24px rgba(0,0,0,.15); }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible { outline:3px solid #111; outline-offset:2px; }
+    /* Editorial, spacious layout inspired by the reference, with our own content. */
+    .app-shell { padding-inline:22px; }
+    .topbar { min-height:64px; margin-bottom:36px; border-bottom:1px solid #e5e5e5; }
+    .brand { font-size:16px; letter-spacing:-.025em; }
+    .brand-mark { border-radius:12px; }
+    .eyebrow { color:#333; letter-spacing:.2em; font-size:10px; }
+    h1, .screen-title { font-family:Georgia, 'Times New Roman', serif; font-weight:400; letter-spacing:-.045em; }
+    h1 { font-size:clamp(44px, 11vw, 62px); line-height:1.02; margin:16px 0 18px; }
+    .intro { font-size:15px; line-height:1.6; }
+    .hinglish-note { margin-top:22px; padding-left:15px; line-height:1.7; }
+    .demo-entry { margin-top:23px; padding:16px; }
+    .car-card { margin:0 0 34px; min-height:0; padding:10px 18px 18px; display:flex; flex-direction:column; align-items:stretch; border-radius:22px; background:#f3f3f3; }
+    .car-stage { order:0; position:relative; width:100%; height:auto; aspect-ratio:16/9; overflow:hidden; }
+    .car-stage > .car-image, .car-stage > .profile-car { display:none !important; }
+    .hero-still, .hero-video { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+    .hero-video { opacity:0; pointer-events:none; }
+    .hero-video.is-playing { opacity:1; }
+    @font-face { font-family:'Salon Script'; src:url('assets/yellowtail-latin.woff2') format('woff2'); font-display:swap; }
+    .profile-pricing-link { margin:0 0 20px; min-height:76px; }
+    .brand-logo { display:flex; align-items:center; gap:4px; }
+    .brand-logo img { display:block; width:88px; height:auto; }
+    .brand-salon { font-family:'Salon Script', cursive; font-size:24px; line-height:1; color:#e7e9eb; background:linear-gradient(180deg,#fff 3%,#d6d9dd 32%,#858b91 49%,#f9fafb 66%,#aeb4ba 100%); background-clip:text; -webkit-background-clip:text; -webkit-text-fill-color:transparent; filter:drop-shadow(0 1px 1px #000); }
+    .hero-wordmark { position:absolute; z-index:2; top:16%; left:50%; transform:translateX(-50%); display:block; width:30%; max-width:145px; height:auto; pointer-events:none; opacity:1; transition:opacity .18s ease-out; text-align:center; }
+    .hero-wordmark img { display:block; width:100%; height:auto; }
+    .hero-salon { display:block; margin-top:3px; font-family:'Salon Script', cursive; font-size:clamp(16px, 5vw, 24px); line-height:1; color:#e7e9eb; background:linear-gradient(180deg,#fff 3%,#d6d9dd 32%,#858b91 49%,#f9fafb 66%,#aeb4ba 100%); background-clip:text; -webkit-background-clip:text; -webkit-text-fill-color:transparent; filter:drop-shadow(0 1px 1px #000); }
+    .car-stage.video-running .hero-wordmark { opacity:0; }
+    .car-stage.video-running .hero-wordmark.is-visible { opacity:1; }
+    .car-copy { order:2; width:100%; padding:13px 0 0; border-top:1px solid #d8d8d8; text-align:center; }
+    .car-copy strong { font-size:13px; }
+    .profile-car, .profile-car .wheel-spin { animation:none; }
+    .section-head { margin:34px 0 16px; }
+    .section-head h2, .price-chart h2 { font-family:Georgia, 'Times New Roman', serif; font-weight:400; font-size:28px; letter-spacing:-.035em; }
+    .service-list { gap:12px; }
+    .service-card { min-height:92px; padding:18px; border-radius:20px; }
+    .service-copy strong { font-size:15px; }
+    .featured-prices { margin-top:44px; }
+    .featured-prices h2 { max-width:450px; margin:12px 0 12px; font-family:Georgia, 'Times New Roman', serif; font-weight:400; font-size:clamp(30px, 8vw, 40px); line-height:1.06; }
+    .featured-price-list { gap:11px; }
+    .featured-price-card { padding:19px 17px; border-radius:19px; }
+    .featured-price-card h3 { margin-bottom:18px; font-size:14px; }
+    .featured-price-card dd { font-size:16px; }
+    .price-chart { margin-top:42px; }
+    .price-chart > p { margin:9px 0 16px; }
+    .price-table th, .price-table td { padding:14px 11px; }
+    .form-card, .booking-item, .phone-auth-card { border-radius:20px; }
+    .screen-title { font-size:clamp(38px, 10vw, 50px); margin:12px 0; }
+    .screen-subtitle { margin-bottom:26px; }
+    .tabbar { box-shadow:0 -6px 20px rgba(0,0,0,.04); }
+    /* Inverted monochrome: dark surfaces and high-contrast light text. */
+    :root { color-scheme:dark; --bg:#000; --panel:#151515; --panel-soft:#1b1b1b; --line:#484848; --text:#f7f7f7; --muted:#c5c5c5; --mint:#f7f7f7; --mint-ink:#111; --amber:#f7f7f7; --danger:#fff; }
+    body { background:#000; color:var(--text); }
+    .topbar { border-color:#3d3d3d; }
+    .eyebrow, .intro, .hinglish-note, .demo-entry-copy span, .price-table tbody td, .promise, .field label,
+    .availability-note, .consent-note, .success-card p, .booking-detail, .auth-status,
+    .profile-summary span, .booking-profile-summary span, .profile-only-note, .privacy-foot { color:#dedede; }
+    .hinglish-note { border-color:#bdbdbd; }
+    .brand-mark, .service-icon, .empty-icon { background:#292929; border-color:#555; color:#fff; }
+    .top-action, .secondary-action, .price-select { background:#191919; border-color:#777; color:#fff; }
+    .top-action:hover, .secondary-action:hover, .price-select:hover { background:#333; border-color:#eee; }
+    .demo-entry, .car-card, .service-card, .featured-price-card, .price-table-wrap,
+    .promise, .form-card, .booking-item, .phone-auth-card, .profile-id-card,
+    .profile-summary, .booking-profile-summary, .booking-price, .success-card, .auth-status {
+      background:#151515; border-color:#484848; color:#f7f7f7;
+    }
+    .car-stage { background:radial-gradient(ellipse at 50% 55%, #9b9b9b 0%, #5e5e5e 38%, #151515 78%); border-radius:16px; }
+    .hero-wordmark { color:#fff; }
+    .car-copy { border-color:#484848; }
+    .demo-tag, .local-badge { background:#292929; border-color:#666; color:#fff; }
+    .service-card:hover { background:#292929; border-color:#888; }
+    .field input, .field select, .field textarea, .slot { background:#0e0e0e; border-color:#777; color:#fff; }
+    .field input::placeholder, .field textarea::placeholder { color:#bdbdbd; }
+    .slot[aria-pressed="true"] { background:#454545; border-color:#fff; color:#fff; box-shadow:inset 0 0 0 1px #fff; }
+    .consent-note { background:#303030; }
+    .primary-action, .success-mark { background:#f7f7f7; color:#111; }
+    .form-error { color:#fff; border-color:#fff; }
+    .otp-pending { color:#dedede !important; }
+    .empty-state { border-color:#777; }
+    .tabbar { background:rgba(8,8,8,.97); border-color:#484848; box-shadow:0 -6px 20px rgba(0,0,0,.4); }
+    .tab { color:#c5c5c5; }
+    .tab.active { background:#303030; color:#fff; }
+    .toast { background:#292929; color:#fff; box-shadow:0 8px 24px rgba(0,0,0,.5); }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible { outline-color:#fff; }
+    [hidden] { display:none !important; }
+    @media (max-width:360px) {
+      .app-shell { padding-inline:14px; }
+      .topbar { margin-bottom:14px; min-height:50px; }
+      h1 { margin:12px 0 16px; font-size:clamp(39px, 12vw, 44px); }
+      .screen-title { font-size:38px; }
+      .hinglish-note { margin-top:9px; font-size:11px; }
+      .car-card { margin-top:0; margin-bottom:24px; min-height:0; }
+      .car-stage { height:auto; }
+      #demo-home-entry { margin-top:10px; padding:10px 12px; }
+      .form-card { padding:14px; }
+      .two-fields { grid-template-columns:1fr; gap:0; }
+      .demo-entry { display:grid; grid-template-columns:1fr; }
+      .demo-entry .secondary-action { width:100%; min-width:0; }
+    }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
+    /* This separately published preview never asks for real customer information. */
+    #profile-form-wrap, #demo-profile-entry, #exit-demo, #edit-profile, .phone-auth-card, .auth-status { display:none !important; }
+    .public-demo-note { margin:0 0 24px; padding:11px 14px; border:1px solid #555; border-radius:12px; color:#e5e5e5; font-size:12px; line-height:1.5; background:#171717; }
+    .public-demo-note strong { color:#fff; }
+    .brand-wordmark { color:#fff; font-size:19px; font-weight:750; letter-spacing:.01em; }
+    .brand-wordmark span { color:#d5d5d5; font-weight:450; }
+    .hero-wordmark { width:auto; max-width:none; padding:5px 9px; border-radius:5px; background:rgba(0,0,0,.58); white-space:nowrap; color:#fff; font-size:clamp(11px,3.6vw,16px); font-weight:750; letter-spacing:.13em; text-transform:uppercase; }
+    .hero-wordmark span { color:#dedede; font-weight:450; }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#home" aria-label="Car Salon home" data-nav="home">
+        <span class="brand-wordmark" aria-hidden="true">Car <span>Salon</span></span>
+      </a>
+      <button class="top-action" type="button" data-nav="profile" aria-label="Open customer profile">Profile</button>
+    </header>
+
+    <main>
+      <div class="public-demo-note"><strong>Fictional demo</strong> · No real customer details or bookings. Requests stay on this device.</div>
+      <section class="view active" id="home-view" aria-labelledby="home-title">
+        <span class="eyebrow">Doorstep car care</span>
+        <h1 id="home-title">A fresh start for your car.</h1>
+        <p class="intro">Car washing and polishing, brought to your doorstep.</p>
+        <p class="hinglish-note">Jab sab kuch phone se ek tap pe ghar aa sakta hai, toh car ki chamak kyun nahi? Car wash aur polish, ab aapke doorstep par.</p>
+        <div class="demo-entry" id="demo-home-entry">
+          <div class="demo-entry-copy"><strong>Development demo · fictional data</strong><span>Try Ram's white Mercedes CLA without real contact details or OTP.</span></div>
+          <button class="secondary-action" id="home-enter-demo" type="button" data-enter-demo>Enter demo mode</button>
+        </div>
+        <div class="car-card" id="vehicle-showcase">
+          <div class="car-copy"><span class="demo-tag" id="demo-active-tag" hidden>DEMO · FICTIONAL</span><strong id="home-car-title">Kaun kehta hai sirf insaan tan hote hain?</strong><span id="home-car-subtitle">Gaadi ko bhi pampering chahiye!</span><span id="home-car-detail">Set up a profile to personalize your car details.</span></div>
+          <div class="car-stage">
+            <img class="hero-still" src="assets/gdd1-shutter-poster.jpg" alt="A closed garage shutter, from the opening video" width="1280" height="720">
+            <video class="hero-video" id="hero-video" src="assets/gdd1-hero.webm" poster="assets/gdd1-shutter-poster.jpg" preload="metadata" muted playsinline aria-hidden="true"></video>
+            <span class="hero-wordmark">Car <span>Salon</span></span>
+            <img class="car-image" id="default-car" src="assets/bmw-x6m.webp" alt="Illustrative red BMW X6 M sample art, not a customer vehicle" width="1800" height="1280" fetchpriority="high">
+            <svg class="profile-car" id="profile-car" viewBox="0 0 260 150" role="img" aria-label="Personalized vehicle animation" hidden>
+              <ellipse cx="132" cy="120" rx="105" ry="11" fill="rgba(0,0,0,.38)"/>
+              <path id="profile-car-body" d="M24 98 35 76Q39 67 51 63l33-8 22-24q7-8 18-8h39q13 0 21 10l22 28 22 8q13 5 15 18l2 12q1 12-12 12H39q-15 0-15-13Z" fill="#f2f4f1" stroke="rgba(255,255,255,.65)" stroke-width="2"/>
+              <path d="m91 55 20-22q5-5 13-5h36q9 0 15 7l17 21H91Z" fill="#b9d2d4" stroke="rgba(255,255,255,.72)" stroke-width="2"/>
+              <path d="m126 30-22 26h54V30h-32Zm39 0v26h22l-18-22q-2-3-4-4Z" fill="#142d34" opacity=".86"/>
+              <path d="M44 77h167" stroke="rgba(255,255,255,.52)" stroke-width="2" stroke-linecap="round"/>
+              <path d="m27 91 19-2m188 1 17 3" stroke="#f8f6e9" stroke-width="4" stroke-linecap="round"/>
+              <g class="wheel-spin"><circle cx="72" cy="108" r="19" fill="#101a20" stroke="#b8c5c3" stroke-width="4"/><circle cx="72" cy="108" r="7" fill="#dce9e8"/><path d="M72 92v8m0 16v8m-16-16h8m16 0h8m-27-11 6 6m18 18 6 6m0-30-6 6m-18 18-6 6" stroke="#90a6a4" stroke-width="2"/></g>
+              <g class="wheel-spin"><circle cx="202" cy="108" r="19" fill="#101a20" stroke="#b8c5c3" stroke-width="4"/><circle cx="202" cy="108" r="7" fill="#dce9e8"/><path d="M202 92v8m0 16v8m-16-16h8m16 0h8m-27-11 6 6m18 18 6 6m0-30-6 6m-18 18-6 6" stroke="#90a6a4" stroke-width="2"/></g>
+              <rect x="107" y="85" width="50" height="14" rx="3" fill="#f4f5ec" stroke="#24373b"/>
+              <text id="vehicle-plate" x="132" y="95" fill="#13272c" text-anchor="middle" font-size="7" font-weight="800" letter-spacing=".5">REGISTRATION</text>
+            </svg>
+          </div>
+        </div>
+        <div class="section-head"><h2>Choose your wash</h2><span>Pick a service to book</span></div>
+        <div class="service-list">
+          <button class="service-card" type="button" data-book-service="foam">
+            <span class="service-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 14.5 5.6 10c.3-.9 1.2-1.5 2.1-1.5h8.6c.9 0 1.7.5 2.1 1.4l1.6 4.6M3.5 14.5h17v4h-17v-4ZM7 18.5v1.5m10-1.5v1.5M7 12.5h.1m9.8 0h.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="6" r="1.3" fill="currentColor"/><circle cx="12" cy="4.5" r="1" fill="currentColor"/><circle cx="17" cy="6" r="1.3" fill="currentColor"/></svg></span>
+            <span class="service-copy"><strong>Foam Wash</strong><span>Fresh, spotless reset</span></span><span class="service-arrow" aria-hidden="true">›</span>
+          </button>
+          <button class="service-card" type="button" data-book-service="gloss">
+            <span class="service-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="m12 2.8 2 6.2 6.2 2-6.2 2-2 6.2-2-6.2-6.2-2 6.2-2 2-6.2Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="m19 16 .9 2.1L22 19l-2.1.9L19 22l-.9-2.1L16 19l2.1-.9L19 16Z" fill="currentColor"/></svg></span>
+            <span class="service-copy"><strong>Ceramic Gloss</strong><span>Polished, protected shine</span></span><span class="service-arrow" aria-hidden="true">›</span>
+          </button>
+        </div>
+        <div class="promise"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 4.2 4.2L19 6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Your requests are saved on this device. Live availability and business confirmation are not connected yet.</span></div>
+      </section>
+
+      <section class="view" id="pricing-view" aria-labelledby="pricing-title">
+        <button class="back-button" type="button" data-nav="profile"><span aria-hidden="true">←</span> Back to profile</button>
+        <span class="eyebrow">Detailing services</span>
+        <h1 class="screen-title" id="pricing-title">Pricing List</h1>
+        <p class="screen-subtitle">Find a service and choose your vehicle type.</p>
+        <section class="featured-prices" lang="hi-Latn" aria-labelledby="featured-prices-title">
+          <span class="eyebrow">Detailing ki sevaayein</span>
+          <h2 id="featured-prices-title" lang="en">A flawless finish. Lasting protection.</h2>
+          <p>Gaadi ke hisaab se keemat · rupaye mein</p>
+          <div class="featured-price-list">
+            <article class="featured-price-card">
+              <h3>Wash ’N’ Shine (dhulai, vacuum aur hand wax)</h3>
+              <dl><div><dt>Hatchback</dt><dd>₹800</dd></div><div><dt>Sedan</dt><dd>₹1,000</dd></div><div><dt>Luxury / SUV</dt><dd>₹1,200</dd></div></dl>
+            </article>
+            <article class="featured-price-card">
+              <h3>Glow Touch (dhulai, vacuum aur machine wax)</h3>
+              <dl><div><dt>Hatchback</dt><dd>₹1,400</dd></div><div><dt>Sedan</dt><dd>₹1,600</dd></div><div><dt>Luxury / SUV</dt><dd>₹1,800</dd></div></dl>
+            </article>
+            <article class="featured-price-card">
+              <h3>Shine Pro (glaze aur wax)</h3>
+              <dl><div><dt>Hatchback</dt><dd>₹2,300</dd></div><div><dt>Sedan</dt><dd>₹2,600</dd></div><div><dt>Luxury / SUV</dt><dd>₹2,800</dd></div></dl>
+            </article>
+            <article class="featured-price-card">
+              <h3>Paint Protection (paint ki suraksha)</h3>
+              <dl><div><dt>Hatchback</dt><dd>₹3,800</dd></div><div><dt>Sedan</dt><dd>₹4,300</dd></div><div><dt>Luxury / SUV</dt><dd>₹4,800</dd></div></dl>
+            </article>
+          </div>
+          <p class="featured-note">Neeche price chart se koi bhi seva chunein. Booking request sirf is device par save hoti hai.</p>
+        </section>
+        <section class="price-chart" aria-labelledby="price-chart-title">
+          <h2 id="price-chart-title">Car detailing prices</h2>
+          <p>Prices in rupees. Swipe sideways to see all vehicle types. Select a service to start a local booking request.</p>
+          <div class="price-table-wrap" tabindex="0" role="region" aria-label="Car detailing prices, scroll horizontally">
+            <table class="price-table">
+              <thead><tr><th scope="col">Service</th><th scope="col">Hatchback</th><th scope="col">Sedan</th><th scope="col">Luxury / SUV</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Wash ’N’ Shine (Wash, Vacuum &amp; Hand Wax)</th><td>₹800</td><td>₹1,000</td><td>₹1,200</td></tr>
+                <tr><th scope="row">Glow Touch (Wash, Vacuum &amp; Machine Wax)</th><td>₹1,400</td><td>₹1,600</td><td>₹1,800</td></tr>
+                <tr><th scope="row">Shine Pro (Glaze &amp; Wax)</th><td>₹2,300</td><td>₹2,600</td><td>₹2,800</td></tr>
+                <tr><th scope="row">Paint Protection</th><td>₹3,800</td><td>₹4,300</td><td>₹4,800</td></tr>
+                <tr><th scope="row">Interior Detailing + Car Wash</th><td>₹1,800</td><td>₹2,000</td><td>₹2,300</td></tr>
+                <tr><th scope="row">Nano Body Coat</th><td>₹6,800</td><td>₹7,800</td><td>₹8,800</td></tr>
+                <tr><th scope="row">Ceramic Coating - 1 Year</th><td>₹11,799</td><td>₹12,799</td><td>₹14,799</td></tr>
+                <tr><th scope="row">Ceramic Coating - 2 Years</th><td>₹16,799</td><td>₹17,790</td><td>₹19,799</td></tr>
+                <tr><th scope="row">Wash ’N’ Vacuum</th><td>₹400</td><td>₹500</td><td>₹600</td></tr>
+                <tr><th scope="row">AC Duct Disinfectant</th><td>₹400</td><td>₹500</td><td>₹600</td></tr>
+                <tr><th scope="row">Breathe Fresh (AC &amp; Odor)</th><td>₹1,100</td><td>₹1,200</td><td>₹1,300</td></tr>
+                <tr><th scope="row">Alloy Wheel Polish</th><td>₹500</td><td>₹600</td><td>₹600</td></tr>
+                <tr><th scope="row">Headlight Restoration</th><td>₹600</td><td>₹700</td><td>₹800</td></tr>
+                <tr><th scope="row">Glass Polish (Each Glass)</th><td>₹800</td><td>₹1,000</td><td>₹1,200</td></tr>
+                <tr><th scope="row">Nano Glass Coating</th><td>₹800</td><td>₹1,000</td><td>₹1,200</td></tr>
+                <tr><th scope="row">Sparkle Touch</th><td>₹3,800</td><td>₹4,300</td><td>₹4,800</td></tr>
+                <tr><th scope="row">Sparkle Premium Touch</th><td>₹5,800</td><td>₹6,300</td><td>₹6,800</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section class="view" id="book-view" aria-labelledby="book-title">
+        <button class="back-button" type="button" data-nav="home"><span aria-hidden="true">←</span> Back to services</button>
+        <span class="eyebrow">Doorstep car care</span>
+        <h1 class="screen-title" id="book-title">Try a demo booking</h1>
+        <p class="screen-subtitle">Choose a preferred day and time, then save your request on this device.</p>
+        <div id="booking-form-wrap">
+          <form class="form-card" id="booking-form" novalidate>
+            <p class="form-section-title">Wash details</p>
+            <div class="field">
+              <label for="service">Choose a service</label>
+              <select id="service" name="service" aria-describedby="selected-service-name" required>
+                <option value="foam">Foam Wash</option>
+                <option value="gloss">Ceramic Gloss</option>
+              </select>
+              <span class="field-hint" id="selected-service-name"></span>
+            </div>
+            <div class="field" id="vehicle-category-wrap" hidden>
+              <label for="vehicle-category">Vehicle type</label>
+              <select id="vehicle-category" name="vehicleCategory">
+                <option value="">Choose a vehicle type</option>
+                <option value="hatchback">Hatchback</option>
+                <option value="sedan">Sedan</option>
+                <option value="luxury">Luxury / SUV</option>
+              </select>
+            </div>
+            <p class="booking-price" id="booking-price" role="status" aria-live="polite"></p>
+            <div class="two-fields">
+              <div class="field"><label for="date">Preferred date</label><input id="date" name="date" type="date" required></div>
+              <div class="field"><label for="time-choice">Time windows</label><span id="time-choice" class="field-hint">Select one below</span></div>
+            </div>
+            <div class="slots" id="slots" role="group" aria-label="Choose a preferred time window"></div>
+            <p class="availability-note">Requests only — these are not live business availability or confirmed appointments.</p>
+            <p class="form-section-title">Customer and vehicle</p>
+            <div class="booking-profile-summary" id="booking-profile-summary"></div>
+            <p class="field-hint">The booking will be linked to this local customer profile and saved vehicle.</p>
+            <p class="form-section-title">Service address</p>
+            <div class="field">
+              <label for="property">Property / community (optional)</label>
+              <select id="property" name="property" aria-label="Fictional property"><option value="">Fictional property</option></select>
+              <span class="field-hint">Sample address for demonstration only.</span>
+            </div>
+            <div class="field" id="other-property-wrap">
+              <label for="property-name">Property / community name <span class="field-hint">(optional)</span></label>
+              <input id="property-name" name="propertyName" type="text" value="Example Property" readonly>
+            </div>
+            <div class="field" id="tower-wrap" hidden>
+              <label for="tower">Tower</label>
+              <select id="tower" name="tower">
+                <option value="">Select a tower</option>
+                <option value="Tower 1">Tower 1</option><option value="Tower 2">Tower 2</option><option value="Tower 3">Tower 3</option><option value="Tower 4">Tower 4</option><option value="Tower 5">Tower 5</option><option value="Tower 6">Tower 6</option><option value="Tower 7">Tower 7</option><option value="Tower 8">Tower 8</option><option value="Tower 9">Tower 9</option><option value="Tower 10">Tower 10</option><option value="Tower 11">Tower 11</option><option value="Tower 12">Tower 12</option><option value="Tower 13">Tower 13</option><option value="Tower 14">Tower 14</option><option value="Tower 15">Tower 15</option><option value="Tower 16">Tower 16</option><option value="Tower 17">Tower 17</option><option value="Tower 18">Tower 18</option><option value="Tower 19">Tower 19</option><option value="Tower 20">Tower 20</option><option value="Tower 21">Tower 21</option><option value="Tower 22">Tower 22</option><option value="Tower 23">Tower 23</option>
+              </select>
+            </div>
+            <div class="field"><label for="address">Flat number / details</label><input id="address" name="address" type="text" value="Demo Flat 101" readonly required></div>
+            <p class="consent-note" id="booking-consent">Your local profile, vehicle, and request are stored only on this device. Nothing is sent to a business or server, and saving does not confirm a service visit.</p>
+            <button class="primary-action" id="save-booking" type="submit">Save booking request</button>
+            <p class="form-error" id="form-error" role="alert" hidden></p>
+          </form>
+        </div>
+        <div class="success-card" id="booking-success" hidden aria-live="polite">
+          <div class="success-mark" aria-hidden="true">✓</div>
+          <h2 id="booking-success-title">Request saved</h2>
+          <p id="booking-success-note">Your request is saved on this device. It has not been sent to the business and your appointment is not confirmed.</p>
+          <span class="request-code" id="request-code"></span>
+          <button class="primary-action" type="button" data-nav="bookings">View my bookings</button>
+          <button class="secondary-action" type="button" id="book-another">Book another wash</button>
+        </div>
+      </section>
+
+      <section class="view" id="profile-view" aria-labelledby="profile-title">
+        <span class="eyebrow">Customer profile</span>
+        <h1 class="screen-title" id="profile-title">Your profile</h1>
+        <p class="screen-subtitle">This sample profile contains fictional details only.</p>
+        <button class="service-card profile-pricing-link" type="button" data-nav="pricing">
+          <span class="service-icon" aria-hidden="true">₹</span>
+          <span class="service-copy"><strong>Pricing List</strong><span>View all detailing services and prices</span></span>
+          <span class="service-arrow" aria-hidden="true">›</span>
+        </button>
+        <div class="auth-status" role="note"><strong>Secure sign-in is not connected</strong><span>This is a device-only profile preview, not registration/login. No password is collected or stored here. Real customer accounts need a confirmed Firebase project and app setup.</span></div>
+        <section class="phone-auth-card" aria-labelledby="phone-auth-title">
+          <h2 id="phone-auth-title">Sign in with your phone</h2>
+          <p>Phone OTP is the chosen sign-in method. This screen is prepared, but account verification is not active yet.</p>
+          <div class="field"><label for="auth-phone">Mobile number</label><input id="auth-phone" name="auth-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="Phone sign-in not configured" aria-describedby="otp-pending" disabled></div>
+          <button class="primary-action" id="request-otp" type="button" disabled>Send verification code</button>
+          <p class="otp-pending" id="otp-pending" role="status">Waiting for confirmation of the business Firebase project and app setup. No OTP is sent or stored.</p>
+          <div class="field" style="margin-top:12px"><label for="otp-code">Verification code</label><input id="otp-code" name="otp-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="Enter code after it is sent" disabled></div>
+          <button class="secondary-action" id="verify-otp" type="button" disabled>Verify and sign in</button>
+        </section>
+        <section class="demo-entry" id="demo-profile-entry" aria-label="Fictional development profile">
+          <div class="demo-entry-copy"><strong>Development demo only</strong><span>Ram · white Mercedes CLA · no phone, email, or real customer data.</span></div>
+          <button class="secondary-action" id="profile-enter-demo" type="button" data-enter-demo>Use Ram's demo profile</button>
+        </section>
+        <div id="profile-form-wrap">
+          <form class="form-card" id="profile-form" novalidate>
+            <p class="form-section-title">Contact details</p>
+            <div class="field"><label for="profile-name">Full name</label><input id="profile-name" name="name" type="text" autocomplete="name" maxlength="100" placeholder="Your name" required></div>
+            <div class="field"><label for="profile-email">Email</label><input id="profile-email" name="email" type="email" autocomplete="email" maxlength="160" placeholder="name@example.com" required></div>
+            <div class="field"><label for="profile-phone">Phone number</label><input id="profile-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="24" placeholder="Your contact number" required></div>
+            <p class="form-section-title">Your vehicle</p>
+            <div class="two-fields">
+              <div class="field"><label for="vehicle-make">Make</label><input id="vehicle-make" name="make" type="text" maxlength="60" placeholder="Car make" required></div>
+              <div class="field"><label for="vehicle-model">Model</label><input id="vehicle-model" name="model" type="text" maxlength="60" placeholder="Car model" required></div>
+            </div>
+            <div class="two-fields">
+              <div class="field"><label for="vehicle-color">Colour</label><select id="vehicle-color" name="color" required><option value="white">White</option><option value="black">Black</option><option value="silver">Silver</option><option value="grey">Grey</option><option value="red">Red</option><option value="blue">Blue</option><option value="other">Other</option></select></div>
+              <div class="field"><label for="vehicle-registration">Registration number</label><input id="vehicle-registration" name="registration" type="text" maxlength="20" autocapitalize="characters" placeholder="Your plate number" required></div>
+            </div>
+            <p class="consent-note">This local preview stores personal and vehicle details on this device only. It is not protected by a customer login and does not sync.</p>
+            <button class="primary-action" type="submit">Save local profile preview</button>
+            <p class="form-error" id="profile-error" role="alert" hidden></p>
+          </form>
+        </div>
+        <div id="profile-saved" hidden>
+          <div class="profile-id-card"><span class="eyebrow" id="profile-id-label">Temporary device-only customer ID</span><strong id="profile-customer-id"></strong><p id="profile-id-note">This ID is local to this profile preview, not a globally verified customer account. The authentication backend must issue the real customer ID.</p></div>
+          <div class="profile-summary" id="profile-summary"></div>
+          <button class="secondary-action" type="button" id="edit-profile">Update profile and vehicle</button>
+          <button class="secondary-action" type="button" id="exit-demo" hidden>Exit demo mode</button>
+        </div>
+        <p class="privacy-foot">To turn this into secure registration and login, choose the backend and business-owned account before any real customer information is entered.</p>
+      </section>
+
+      <section class="view" id="bookings-view" aria-labelledby="bookings-title">
+        <span class="eyebrow">Your activity</span>
+        <h1 class="screen-title" id="bookings-title">My bookings</h1>
+        <p class="screen-subtitle" id="bookings-subtitle">Requests saved on this device.</p>
+        <div class="booking-list" id="booking-list"></div>
+        <div class="empty-state" id="empty-state" hidden>
+          <div class="empty-icon" aria-hidden="true">◷</div>
+          <h2>No saved requests yet</h2>
+          <p>When you save a booking request, it will appear here on this device.</p>
+        </div>
+        <p class="privacy-foot">These records are stored locally on this device only. They do not sync to another phone or reach the car-wash business.</p>
+        <button class="secondary-action" type="button" data-nav="home">Browse wash services</button>
+      </section>
+    </main>
+  </div>
+
+  <nav class="tabbar" aria-label="App navigation">
+    <button class="tab active" type="button" data-nav="home" aria-current="page"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m3.5 10 8.5-7 8.5 7v10a1 1 0 0 1-1 1h-5.4v-6.4H9.9V21H4.5a1 1 0 0 1-1-1V10Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><span>Home</span></button>
+    <button class="tab" type="button" data-nav="book"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M8 3v4m8-4v4M4 10h16m-8 4v5m-2.5-2.5h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Book</span></button>
+    <button class="tab" type="button" data-nav="bookings"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 4h12a2 2 0 0 1 2 2v14l-8-4-8 4V6a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 8h6m-6 4h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Bookings</span></button>
+    <button class="tab" type="button" data-nav="profile"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Profile</span></button>
+  </nav>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      'use strict';
+      // Place the existing car artwork first on Home, without an interstitial or blocking interaction.
+      document.getElementById('home-view').prepend(document.getElementById('vehicle-showcase'));
+      const heroVideo = document.getElementById('hero-video');
+      const heroStage = heroVideo.closest('.car-stage');
+      const heroWordmark = heroStage.querySelector('.hero-wordmark');
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const shutterClosedAt = 7.8;
+      let heroStarted = false;
+      function showHeroFallback() {
+        heroVideo.pause();
+        heroVideo.classList.remove('is-playing');
+        heroStage.classList.remove('video-running');
+      }
+      function updateHeroMotion() {
+        if (reducedMotion.matches) { showHeroFallback(); return; }
+        if (heroStarted) return;
+        heroStarted = true;
+        heroStage.classList.add('video-running');
+        heroWordmark.classList.remove('is-visible');
+        heroVideo.muted = true;
+        const playback = heroVideo.play();
+        if (playback && typeof playback.catch === 'function') playback.catch(showHeroFallback);
+      }
+      function updateHeroWordmark() {
+        heroWordmark.classList.toggle('is-visible', heroVideo.currentTime >= shutterClosedAt);
+      }
+      heroVideo.addEventListener('playing', () => {
+        if (reducedMotion.matches) showHeroFallback(); else { heroVideo.classList.add('is-playing'); updateHeroWordmark(); }
+      });
+      heroVideo.addEventListener('timeupdate', updateHeroWordmark);
+      heroVideo.addEventListener('ended', updateHeroWordmark);
+      heroVideo.addEventListener('error', showHeroFallback);
+      if (reducedMotion.addEventListener) reducedMotion.addEventListener('change', updateHeroMotion);
+      else if (reducedMotion.addListener) reducedMotion.addListener(updateHeroMotion);
+      updateHeroMotion();
+      const STORAGE_KEY = 'gaadi-da-dhobi.bookings.v1';
+      const DEMO_STORAGE_KEY = 'gaadi-da-dhobi.demo-bookings.v1';
+      const PROFILE_KEY = 'gaadi-da-dhobi.profile.v1';
+      const DEMO_PROFILE_KEY = 'gaadi-da-dhobi.demo-profile.v1';
+      const PROFILE_MODE_KEY = 'gaadi-da-dhobi.profile-mode.v1';
+      const vehicleColours = {
+        white: { label: 'White', hex: '#f1f3f2' }, black: { label: 'Black', hex: '#30383b' },
+        silver: { label: 'Silver', hex: '#aeb8bd' }, grey: { label: 'Grey', hex: '#717d81' },
+        red: { label: 'Red', hex: '#c84e47' }, blue: { label: 'Blue', hex: '#477994' },
+        other: { label: 'Other', hex: '#9bbdb8' }
+      };
+      const slots = [
+        { value: '09:00-11:00', label: '9:00–11:00 AM' },
+        { value: '11:00-13:00', label: '11:00 AM–1:00 PM' },
+        { value: '13:00-15:00', label: '1:00–3:00 PM' },
+        { value: '15:00-17:00', label: '3:00–5:00 PM' },
+        { value: '17:00-19:00', label: '5:00–7:00 PM' }
+      ];
+      const serviceNames = { foam: 'Foam Wash', gloss: 'Ceramic Gloss' };
+      const detailingIds = ['wash-shine', 'glow-touch', 'shine-pro', 'paint-protection', 'interior-detailing', 'nano-body-coat', 'ceramic-1-year', 'ceramic-2-years', 'wash-vacuum', 'ac-duct-disinfectant', 'breathe-fresh', 'alloy-wheel-polish', 'headlight-restoration', 'glass-polish', 'nano-glass-coating', 'sparkle-touch', 'sparkle-premium-touch'];
+      const detailingServices = {};
+      const serviceSelect = document.getElementById('service');
+      const categorySelect = document.getElementById('vehicle-category');
+      const categoryWrap = document.getElementById('vehicle-category-wrap');
+      const priceDisplay = document.getElementById('booking-price');
+      const categoryLabels = { hatchback: 'Hatchback', sedan: 'Sedan', luxury: 'Luxury / SUV' };
+      let pendingService = null;
+      document.querySelectorAll('.price-table tbody tr').forEach((row, index) => {
+        const id = detailingIds[index];
+        if (!id) return;
+        const heading = row.querySelector('th');
+        const name = heading.textContent.trim();
+        const prices = [...row.querySelectorAll('td')].map(cell => cell.textContent.trim());
+        detailingServices[id] = { name, prices: { hatchback: prices[0], sedan: prices[1], luxury: prices[2] } };
+        serviceNames[id] = name;
+        serviceSelect.add(new Option(name, id));
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'price-select';
+        button.textContent = 'Select';
+        button.setAttribute('aria-label', `Select ${name}`);
+        button.addEventListener('click', () => startBooking(id));
+        heading.append(button);
+      });
+      function updateBookingPrice() {
+        const service = detailingServices[serviceSelect.value];
+        document.getElementById('selected-service-name').textContent = serviceNames[serviceSelect.value] || '';
+        categoryWrap.hidden = !service;
+        categorySelect.required = Boolean(service);
+        if (!service) {
+          categorySelect.value = '';
+          priceDisplay.textContent = 'Price is not listed for this shortcut. Choose a detailing service to see its price.';
+          return;
+        }
+        const category = categorySelect.value;
+        priceDisplay.textContent = category && service.prices[category]
+          ? `${categoryLabels[category]} price: ${service.prices[category]}`
+          : 'Choose a vehicle type to see the price.';
+      }
+      serviceSelect.addEventListener('change', updateBookingPrice);
+      categorySelect.addEventListener('change', updateBookingPrice);
+      const views = { home: document.getElementById('home-view'), book: document.getElementById('book-view'), bookings: document.getElementById('bookings-view'), profile: document.getElementById('profile-view'), pricing: document.getElementById('pricing-view') };
+      const form = document.getElementById('booking-form');
+      const dateInput = document.getElementById('date');
+      const propertySelect = document.getElementById('property');
+      const otherPropertyWrap = document.getElementById('other-property-wrap');
+      const towerWrap = document.getElementById('tower-wrap');
+      const towerSelect = document.getElementById('tower');
+      const slotGroup = document.getElementById('slots');
+      const errorBox = document.getElementById('form-error');
+      const toast = document.getElementById('toast');
+      let selectedSlot = '';
+      let toastTimer;
+
+      function localISODate(date = new Date()) {
+        const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+        return local.toISOString().slice(0, 10);
+      }
+      function updateTowerChoice() {
+        const selectedProperty = propertySelect.value === 'Prestige Towers';
+        towerWrap.hidden = !selectedProperty;
+        otherPropertyWrap.hidden = selectedProperty;
+        towerSelect.required = selectedProperty;
+        if (!selectedProperty) towerSelect.value = '';
+      }
+      function readBookings() {
+        try {
+          const key = localStorage.getItem(PROFILE_MODE_KEY) === 'demo' ? DEMO_STORAGE_KEY : STORAGE_KEY;
+          const parsed = JSON.parse(localStorage.getItem(key) || '[]');
+          return Array.isArray(parsed) ? parsed.filter(item => item && typeof item.id === 'string' && typeof item.date === 'string' && typeof item.time === 'string') : [];
+        } catch (_) { return []; }
+      }
+      function saveBookings(bookings) {
+        const key = localStorage.getItem(PROFILE_MODE_KEY) === 'demo' ? DEMO_STORAGE_KEY : STORAGE_KEY;
+        localStorage.setItem(key, JSON.stringify(bookings));
+      }
+      function readProfile() {
+        try {
+          const demoMode = localStorage.getItem(PROFILE_MODE_KEY) === 'demo';
+          const key = demoMode ? DEMO_PROFILE_KEY : PROFILE_KEY;
+          const profile = JSON.parse(localStorage.getItem(key) || 'null');
+          if (!profile || typeof profile.id !== 'string' || !profile.name || !profile.vehicle || !profile.vehicle.make || !profile.vehicle.model || !profile.vehicle.registration) return null;
+          if (demoMode && profile.isDemo !== true) return null;
+          if (!demoMode && (!profile.email || !profile.phone)) return null;
+          return profile;
+        } catch (_) { return null; }
+      }
+      function newLocalCustomerId() {
+        return `GD-LOCAL-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+      }
+      function startDemoMode() {
+        const demoProfile = {
+          id: 'GD-DEMO-001',
+          name: 'Ram',
+          email: '',
+          phone: '',
+          vehicle: { make: 'Mercedes', model: 'CLA', color: 'white', registration: 'DEMO-KA-001' },
+          isDemo: true,
+          authMode: 'demo-preview',
+          updatedAt: new Date().toISOString()
+        };
+        try {
+          localStorage.setItem(DEMO_PROFILE_KEY, JSON.stringify(demoProfile));
+          localStorage.setItem(PROFILE_MODE_KEY, 'demo');
+          renderProfile();
+          if (pendingService) startBooking(pendingService); else showView('home');
+          showToast('Demo mode active. No real customer data or OTP used.');
+        } catch (_) {
+          showToast('This device could not save the demo profile.');
+        }
+      }
+      function updateVehicleShowcase(profile) {
+        const defaultCar = document.getElementById('default-car');
+        const animatedCar = document.getElementById('profile-car');
+        const demoMode = profile?.isDemo === true;
+        document.getElementById('demo-home-entry').hidden = demoMode;
+        document.getElementById('demo-active-tag').hidden = !demoMode;
+        if (!profile) {
+          defaultCar.toggleAttribute('hidden', false);
+          animatedCar.toggleAttribute('hidden', true);
+          document.getElementById('home-car-title').textContent = 'Kaun kehta hai sirf insaan tan hote hain?';
+          document.getElementById('home-car-subtitle').textContent = 'Gaadi ko bhi pampering chahiye!';
+          document.getElementById('home-car-detail').textContent = 'Set up a profile to personalize your car details.';
+          return;
+        }
+        const car = profile.vehicle;
+        const colour = vehicleColours[car.color] || vehicleColours.other;
+        defaultCar.toggleAttribute('hidden', true);
+        animatedCar.toggleAttribute('hidden', false);
+        document.getElementById('profile-car-body').setAttribute('fill', colour.hex);
+        document.getElementById('vehicle-plate').textContent = car.registration.toUpperCase().slice(0, 16);
+        document.getElementById('vehicle-plate').setAttribute('textLength', '46');
+        animatedCar.setAttribute('aria-label', `${demoMode ? 'Fictional demo' : 'Animated'} ${colour.label} ${car.make} ${car.model} preview with registration ${car.registration}`);
+        document.getElementById('home-car-title').textContent = `${profile.name.split(/\s+/)[0]}'s ${car.make} ${car.model}`;
+        document.getElementById('home-car-subtitle').textContent = `${colour.label} · ${car.registration.toUpperCase()}`;
+        document.getElementById('home-car-detail').textContent = demoMode ? 'Fictional demo vehicle · not a real customer record.' : 'Personalized vehicle preview · saved on this device.';
+      }
+      function renderProfile() {
+        const profile = readProfile();
+        const demoMode = profile?.isDemo === true;
+        document.getElementById('profile-form-wrap').hidden = Boolean(profile);
+        document.getElementById('profile-saved').hidden = !profile;
+        document.getElementById('demo-profile-entry').hidden = demoMode;
+        document.getElementById('edit-profile').hidden = demoMode;
+        document.getElementById('exit-demo').hidden = !demoMode;
+        updateVehicleShowcase(profile);
+        if (!profile) return;
+        document.getElementById('profile-customer-id').textContent = profile.id;
+        document.getElementById('profile-id-label').textContent = demoMode ? 'Fictional demo customer ID' : 'Temporary device-only customer ID';
+        document.getElementById('profile-id-note').textContent = demoMode ? 'DEMO ONLY — this sample ID is fictional, not verified, and not a secure account.' : 'This ID is local to this profile preview, not a globally verified customer account. The authentication backend must issue the real customer ID.';
+        const summary = document.getElementById('profile-summary');
+        const colour = vehicleColours[profile.vehicle.color] || vehicleColours.other;
+        const details = [makeElement('strong', '', profile.name)];
+        if (demoMode) details.push(makeElement('span', '', 'Fictional development profile · no personal contact details'));
+        else details.push(makeElement('span', '', `${profile.email} · ${profile.phone}`));
+        details.push(
+          makeElement('span', '', `${profile.vehicle.make} ${profile.vehicle.model} · ${colour.label}`),
+          makeElement('span', '', `Registration ${profile.vehicle.registration.toUpperCase()}`)
+        );
+        summary.replaceChildren(...details);
+      }
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
+      }
+      function showView(name) {
+        Object.entries(views).forEach(([key, node]) => {
+          node.classList.toggle('active', key === name);
+          node.setAttribute('aria-hidden', key === name ? 'false' : 'true');
+        });
+        document.querySelectorAll('.tab').forEach(button => {
+          const active = button.dataset.nav === name || (name === 'pricing' && button.dataset.nav === 'profile');
+          button.classList.toggle('active', active);
+          if (active) button.setAttribute('aria-current', 'page'); else button.removeAttribute('aria-current');
+        });
+        if (name === 'bookings') renderBookings();
+        if (name === 'profile') renderProfile();
+        if (name === 'book') {
+          dateInput.min = localISODate();
+          renderSlots();
+        }
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
+      function startBooking(service = 'foam') {
+        const profile = readProfile();
+        if (!profile) {
+          pendingService = service;
+          showView('profile');
+          showToast('Save a local profile preview first. Secure sign-in is not enabled.');
+          return;
+        }
+        pendingService = null;
+        form.reset();
+        updateTowerChoice();
+        serviceSelect.value = serviceNames[service] ? service : 'foam';
+        updateBookingPrice();
+        const summary = document.getElementById('booking-profile-summary');
+        const colour = vehicleColours[profile.vehicle.color] || vehicleColours.other;
+        const summaryRows = [
+          makeElement('strong', '', profile.name),
+          makeElement('span', 'profile-customer-id', `${profile.isDemo ? 'DEMO customer ID' : 'Local customer ID'} · ${profile.id}`),
+          makeElement('span', '', `${profile.vehicle.make} ${profile.vehicle.model} · ${colour.label} · ${profile.vehicle.registration.toUpperCase()}`)
+        ];
+        summaryRows.push(makeElement('span', '', profile.isDemo ? 'Fictional profile · no personal contact data' : `${profile.email} · ${profile.phone}`));
+        summary.replaceChildren(...summaryRows);
+        document.getElementById('booking-consent').textContent = profile.isDemo
+          ? 'DEMO ONLY: use fictional address details. This request is stored separately on this device, is not sent to the business, and is not a real appointment.'
+          : 'Your local profile, vehicle, and request are stored only on this device. Nothing is sent to a business or server, and saving does not confirm a service visit.';
+        dateInput.min = localISODate();
+        dateInput.value = localISODate();
+        selectedSlot = '';
+        errorBox.hidden = true;
+        document.getElementById('booking-form-wrap').hidden = false;
+        document.getElementById('booking-success').hidden = true;
+        renderSlots();
+        showView('book');
+      }
+      function renderSlots() {
+        const date = dateInput.value;
+        const bookings = readBookings();
+        slotGroup.replaceChildren();
+        slots.forEach(slot => {
+          const occupied = bookings.some(item => item.date === date && item.time === slot.value);
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'slot';
+          button.textContent = occupied ? `${slot.label} · saved here` : slot.label;
+          button.disabled = occupied;
+          button.setAttribute('aria-pressed', selectedSlot === slot.value ? 'true' : 'false');
+          button.addEventListener('click', () => {
+            selectedSlot = slot.value;
+            slotGroup.querySelectorAll('.slot').forEach(item => item.setAttribute('aria-pressed', item === button ? 'true' : 'false'));
+            document.getElementById('time-choice').textContent = `Selected: ${slot.label}`;
+            errorBox.hidden = true;
+          });
+          slotGroup.append(button);
+        });
+        if (!slots.some(slot => bookings.some(item => item.date === date && item.time === slot.value))) {
+          document.getElementById('time-choice').textContent = selectedSlot ? 'Selected below' : 'Select one below';
+        } else if (selectedSlot && bookings.some(item => item.date === date && item.time === selectedSlot)) {
+          selectedSlot = '';
+          document.getElementById('time-choice').textContent = 'Choose another time';
+        }
+      }
+      function formatDate(dateString) {
+        const [year, month, day] = dateString.split('-').map(Number);
+        return new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(year, month - 1, day));
+      }
+      function labelForTime(value) { return (slots.find(slot => slot.value === value) || {}).label || value; }
+      function makeElement(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined) node.textContent = text;
+        return node;
+      }
+      function renderBookings() {
+        const list = document.getElementById('booking-list');
+        const profile = readProfile();
+        const demoMode = profile?.isDemo === true;
+        document.getElementById('bookings-subtitle').textContent = demoMode ? 'Fictional demo requests saved separately on this device.' : 'Requests saved on this device.';
+        const bookings = readBookings().sort((a, b) => `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`));
+        list.replaceChildren();
+        document.getElementById('empty-state').hidden = bookings.length !== 0;
+        bookings.forEach(booking => {
+          const card = makeElement('article', 'booking-item');
+          const top = makeElement('div', 'booking-item-top');
+          const heading = document.createElement('div');
+          heading.append(makeElement('h3', '', serviceNames[booking.service] || 'Car wash'));
+          heading.append(makeElement('div', 'booking-item-date', formatDate(booking.date)));
+          top.append(heading, makeElement('span', 'local-badge', booking.isDemo ? 'Demo only' : 'Saved on device'));
+          card.append(top);
+          const address = [booking.address, booking.city, booking.postal].filter(Boolean).join(', ');
+          const customer = booking.customer || { name: booking.name || 'Local request', phone: booking.phone || '' };
+          const vehicle = booking.vehicle || {};
+          const vehicleLine = vehicle.make ? `${vehicle.make} ${vehicle.model} · ${vehicle.color} · ${vehicle.registration}` : 'Vehicle not linked';
+          const contact = `${customer.name}${customer.phone ? ` · ${customer.phone}` : ''}`;
+          const propertyLine = booking.property ? `${booking.property}${booking.tower ? ` · ${booking.tower}` : ''}` : '';
+          const priceLine = booking.vehicleCategory && booking.price ? `${categoryLabels[booking.vehicleCategory] || booking.vehicleCategory} · ${booking.price}` : '';
+          const detail = makeElement('p', 'booking-detail', [labelForTime(booking.time), contact, vehicleLine, priceLine, propertyLine, address].filter(Boolean).join('\n'));
+          const ownerLabel = booking.isDemo ? `Demo customer ${booking.customerId}` : booking.customerId ? `Customer ${booking.customerId}` : 'Older request · not linked to a customer profile';
+          card.append(detail, makeElement('div', 'booking-id', `${ownerLabel} · Request ${booking.id} · Not confirmed`));
+          list.append(card);
+        });
+        const bookingCount = document.getElementById('booking-count');
+        if (bookingCount) bookingCount.textContent = String(bookings.length);
+      }
+
+      document.querySelectorAll('[data-nav]').forEach(button => button.addEventListener('click', event => {
+        event.preventDefault();
+        const target = button.dataset.nav;
+        if (target === 'book') startBooking(); else showView(target);
+      }));
+      document.querySelectorAll('[data-book-service]').forEach(button => button.addEventListener('click', () => startBooking(button.dataset.bookService)));
+      document.querySelectorAll('[data-enter-demo]').forEach(button => button.addEventListener('click', startDemoMode));
+      document.getElementById('exit-demo').addEventListener('click', () => {
+        localStorage.setItem(PROFILE_MODE_KEY, 'local');
+        renderProfile();
+        showView('profile');
+        showToast(readProfile() ? 'Demo mode ended. Your local profile is unchanged.' : 'Demo mode ended. The fictional demo data remains separate.');
+      });
+      dateInput.min = localISODate();
+      dateInput.value = localISODate();
+      updateTowerChoice();
+      propertySelect.addEventListener('change', updateTowerChoice);
+      dateInput.addEventListener('change', () => { selectedSlot = ''; renderSlots(); });
+      const profileForm = document.getElementById('profile-form');
+      const profileError = document.getElementById('profile-error');
+      profileForm.addEventListener('submit', event => {
+        event.preventDefault();
+        profileError.hidden = true;
+        if (!profileForm.reportValidity()) return;
+        const data = new FormData(profileForm);
+        const digits = String(data.get('phone') || '').replace(/\D/g, '');
+        if (digits.length < 7 || digits.length > 15) {
+          const phone = document.getElementById('profile-phone');
+          phone.setCustomValidity('Enter a phone number with 7 to 15 digits.');
+          phone.reportValidity();
+          phone.setCustomValidity('');
+          return;
+        }
+        const existing = readProfile();
+        const profile = {
+          id: existing ? existing.id : newLocalCustomerId(),
+          name: String(data.get('name')).trim(),
+          email: String(data.get('email')).trim(),
+          phone: String(data.get('phone')).trim(),
+          vehicle: {
+            make: String(data.get('make')).trim(),
+            model: String(data.get('model')).trim(),
+            color: String(data.get('color')),
+            registration: String(data.get('registration')).trim().toUpperCase().replace(/\s+/g, ' ')
+          },
+          authMode: 'local-preview',
+          updatedAt: new Date().toISOString()
+        };
+        try {
+          localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+          localStorage.setItem(PROFILE_MODE_KEY, 'local');
+          renderProfile();
+          if (pendingService) startBooking(pendingService); else showView('home');
+          showToast('Local profile saved. Secure login is still disabled.');
+        } catch (_) {
+          profileError.textContent = 'This device could not save the profile. Check available storage and try again.';
+          profileError.hidden = false;
+        }
+      });
+      document.getElementById('edit-profile').addEventListener('click', () => {
+        const profile = readProfile();
+        if (!profile) return;
+        showView('profile');
+        document.getElementById('profile-form-wrap').hidden = false;
+        document.getElementById('profile-saved').hidden = true;
+        document.getElementById('profile-name').value = profile.name;
+        document.getElementById('profile-email').value = profile.email;
+        document.getElementById('profile-phone').value = profile.phone;
+        document.getElementById('vehicle-make').value = profile.vehicle.make;
+        document.getElementById('vehicle-model').value = profile.vehicle.model;
+        document.getElementById('vehicle-color').value = profile.vehicle.color;
+        document.getElementById('vehicle-registration').value = profile.vehicle.registration;
+      });
+      document.getElementById('book-another').addEventListener('click', () => startBooking());
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+        errorBox.hidden = true;
+        if (!form.reportValidity()) return;
+        if (!selectedSlot) {
+          errorBox.textContent = 'Choose a preferred time window to continue.';
+          errorBox.hidden = false;
+          slotGroup.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          return;
+        }
+        const profile = readProfile();
+        if (!profile) {
+          showView('profile');
+          showToast('Set up a local profile first. Secure sign-in is not enabled.');
+          return;
+        }
+        const data = new FormData(form);
+        if (new Date(`${data.get('date')}T00:00:00`) < new Date(`${localISODate()}T00:00:00`)) {
+          errorBox.textContent = 'Choose today or a future date.';
+          errorBox.hidden = false;
+          return;
+        }
+        const bookings = readBookings();
+        if (bookings.some(item => item.date === data.get('date') && item.time === selectedSlot)) {
+          errorBox.textContent = 'That time is already saved on this device. Choose another preferred time.';
+          errorBox.hidden = false;
+          renderSlots();
+          return;
+        }
+        const colour = vehicleColours[profile.vehicle.color] || vehicleColours.other;
+        const booking = {
+          id: profile.isDemo ? `GD-DEMO-REQ-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 5).toUpperCase()}` : `GD-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
+          isDemo: profile.isDemo === true,
+          customerId: profile.id,
+          customer: { name: profile.name, email: profile.email || '', phone: profile.phone || '' },
+          vehicle: { make: profile.vehicle.make, model: profile.vehicle.model, color: colour.label, registration: profile.vehicle.registration },
+          service: String(data.get('service')),
+          ...(detailingServices[data.get('service')] ? {
+            vehicleCategory: String(data.get('vehicleCategory')),
+            price: detailingServices[data.get('service')].prices[data.get('vehicleCategory')]
+          } : {}),
+          date: String(data.get('date')),
+          time: selectedSlot,
+          property: String(data.get('property') || data.get('propertyName') || '').trim(),
+          tower: String(data.get('tower') || '').trim(),
+          address: String(data.get('address')).trim(),
+          createdAt: new Date().toISOString(),
+          status: 'saved-on-device'
+        };
+        try {
+          saveBookings([booking, ...bookings]);
+          document.getElementById('request-code').textContent = booking.id;
+          document.getElementById('booking-success-title').textContent = booking.isDemo ? 'Demo request saved' : 'Request saved';
+          document.getElementById('booking-success-note').textContent = booking.isDemo
+            ? 'This fictional demo request is stored only in the demo area on this device. It is not sent to the business or a real appointment.'
+            : 'Your request is saved on this device. It has not been sent to the business and your appointment is not confirmed.';
+          document.getElementById('booking-form-wrap').hidden = true;
+          document.getElementById('booking-success').hidden = false;
+          renderBookings();
+          document.getElementById('booking-success').scrollIntoView({ block: 'start', behavior: 'smooth' });
+        } catch (_) {
+          errorBox.textContent = 'This device could not save the request. Check available storage and try again.';
+          errorBox.hidden = false;
+        }
+      });
+      window.addEventListener('storage', event => {
+        if (event.key === STORAGE_KEY) { renderBookings(); renderSlots(); }
+        if ([PROFILE_KEY, DEMO_PROFILE_KEY, PROFILE_MODE_KEY].includes(event.key)) renderProfile();
+        if (event.key === DEMO_STORAGE_KEY) { renderBookings(); renderSlots(); }
+      });
+      startDemoMode();
+      renderBookings();
+      renderSlots();
+    })();
+  </script>
+</body>
+</html>
