@@ -304,8 +304,19 @@
     #profile-form-wrap, #demo-profile-entry, #exit-demo, #edit-profile, .phone-auth-card, .auth-status { display:none !important; }
     .public-demo-note { margin:0 0 24px; padding:11px 14px; border:1px solid #555; border-radius:12px; color:#e5e5e5; font-size:12px; line-height:1.5; background:#171717; }
     .public-demo-note strong { color:#fff; }
-    .brand-wordmark { color:#fff; font-size:19px; font-weight:750; letter-spacing:.01em; }
-    .brand-wordmark span { color:#d5d5d5; font-weight:450; }
+    .brand-car { width:66px; height:31px; flex:none; overflow:visible; }
+    .brand-car .headlight-beam { opacity:0; transform-origin:92px 24px; animation:headlightSweep 1.6s ease-out .35s 1 both; }
+    @keyframes headlightSweep { 0% { opacity:0; transform:translateX(-4px) scaleX(.55); } 26% { opacity:.9; } 60% { opacity:.5; transform:translateX(2px) scaleX(1); } 100% { opacity:0; transform:translateX(7px) scaleX(1.12); } }
+    @media (prefers-reduced-motion:reduce) { .brand-car .headlight-beam { animation:none; opacity:0; } }
+    @font-face { font-family:'Figtree Review'; src:url('assets/figtree-variable.ttf') format('truetype'); font-weight:300 900; font-style:normal; font-display:swap; }
+    .brand-wordmark { color:#fff; font-family:'Figtree Review', sans-serif; font-size:15px; font-weight:700; letter-spacing:.12em; line-height:1; text-transform:uppercase; white-space:nowrap; }
+    .bmw-preview-stage { order:1; position:relative; display:block; height:clamp(135px, 40vw, 180px); margin:10px 0 0; overflow:hidden; border-radius:14px; background:radial-gradient(ellipse at center, #353535 0%, #171717 56%, #0d0d0d 100%); }
+    .bmw-preview-stage img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+    .bmw-clean { filter:saturate(1.04) contrast(1.03) drop-shadow(0 10px 12px rgba(0,0,0,.32)); }
+    .bmw-dark { display:none; pointer-events:none; filter:brightness(.69) saturate(.66) grayscale(.16) sepia(.2) contrast(1.12) drop-shadow(0 10px 12px rgba(0,0,0,.32)); clip-path:inset(0 0 0 var(--wash-progress, 0%)); }
+    .bmw-preview-stage.effect-ready .bmw-dark { display:block; }
+    @media (prefers-reduced-motion:reduce) { .bmw-preview-stage.effect-ready .bmw-dark { display:none; } }
+    .brand-wordmark span { color:inherit; font-weight:inherit; }
     .hero-wordmark { width:auto; max-width:none; padding:5px 9px; border-radius:5px; background:rgba(0,0,0,.58); white-space:nowrap; color:#fff; font-size:clamp(11px,3.6vw,16px); font-weight:750; letter-spacing:.13em; text-transform:uppercase; }
     .hero-wordmark span { color:#dedede; font-weight:450; }
   </style>
@@ -314,6 +325,18 @@
   <div class="app-shell">
     <header class="topbar">
       <a class="brand" href="#home" aria-label="Car Salon home" data-nav="home">
+        <svg class="brand-car" viewBox="0 0 112 42" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="brand-silver" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f5f6"/><stop offset=".55" stop-color="#aeb4b9"/><stop offset="1" stop-color="#717980"/></linearGradient>
+            <linearGradient id="brand-light" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+          </defs>
+          <path d="M7 27.5c1.3-3.5 4.2-5.7 9-6.7l11.5-2.3 12.1-9c2.4-1.8 5-2.7 8-2.7h15.5c4 0 7.2 1.1 10.4 3.2l10.4 7 9.7 2.2c4.2 1 6.7 3.1 7.1 6.8l.2 3.1h-6.2a8.2 8.2 0 0 0-16.2 0H35a8.2 8.2 0 0 0-16.2 0H8c-1.2 0-1.5-.6-1-1.6Z" fill="url(#brand-silver)"/>
+          <path d="m32 18.3 10.1-7.5c1.6-1.2 3.5-1.7 5.7-1.7h13.4v9.2H32Zm32-9.1c3.2.1 5.5.8 8.1 2.5l9.4 6.6H64V9.2Z" fill="#242a2f"/>
+          <path d="M14 24.7h6.5M85 22.2h8.3" stroke="#fafafa" stroke-width="1.1" stroke-linecap="round" opacity=".88"/>
+          <circle cx="27" cy="29.5" r="6.1" fill="#181b1e" stroke="#d7dce0" stroke-width="1.4"/><circle cx="27" cy="29.5" r="2" fill="#d7dce0"/>
+          <circle cx="86.7" cy="29.5" r="6.1" fill="#181b1e" stroke="#d7dce0" stroke-width="1.4"/><circle cx="86.7" cy="29.5" r="2" fill="#d7dce0"/>
+          <path class="headlight-beam" d="M96 21.5 112 17v13L96 24Z" fill="url(#brand-light)"/>
+        </svg>
         <span class="brand-wordmark" aria-hidden="true">Car <span>Salon</span></span>
       </a>
       <button class="top-action" type="button" data-nav="profile" aria-label="Open customer profile">Profile</button>
@@ -327,11 +350,15 @@
         <p class="intro">Car washing and polishing, brought to your doorstep.</p>
         <p class="hinglish-note">Jab sab kuch phone se ek tap pe ghar aa sakta hai, toh car ki chamak kyun nahi? Car wash aur polish, ab aapke doorstep par.</p>
         <div class="demo-entry" id="demo-home-entry">
-          <div class="demo-entry-copy"><strong>Development demo · fictional data</strong><span>Try Ram's white Mercedes CLA without real contact details or OTP.</span></div>
+          <div class="demo-entry-copy"><strong>Development demo · fictional data</strong><span>Try Ram's red BMW demo without real contact details or OTP.</span></div>
           <button class="secondary-action" id="home-enter-demo" type="button" data-enter-demo>Enter demo mode</button>
         </div>
         <div class="car-card" id="vehicle-showcase">
           <div class="car-copy"><span class="demo-tag" id="demo-active-tag" hidden>DEMO · FICTIONAL</span><strong id="home-car-title">Kaun kehta hai sirf insaan tan hote hain?</strong><span id="home-car-subtitle">Gaadi ko bhi pampering chahiye!</span><span id="home-car-detail">Set up a profile to personalize your car details.</span></div>
+          <div class="bmw-preview-stage" id="bmw-preview-stage" aria-label="Fictional red BMW demo vehicle">
+            <img class="bmw-clean" src="assets/bmw-x6m.webp" alt="Red BMW, an illustrative fictional demo vehicle" width="800" height="569">
+            <img class="bmw-dark" src="assets/bmw-x6m.webp" alt="" aria-hidden="true" width="800" height="569">
+          </div>
           <div class="car-stage">
             <img class="hero-still" src="assets/gdd1-shutter-poster.jpg" alt="A closed garage shutter, from the opening video" width="1280" height="720">
             <video class="hero-video" id="hero-video" src="assets/gdd1-hero.webm" poster="assets/gdd1-shutter-poster.jpg" preload="metadata" muted playsinline aria-hidden="true"></video>
@@ -512,7 +539,7 @@
           <button class="secondary-action" id="verify-otp" type="button" disabled>Verify and sign in</button>
         </section>
         <section class="demo-entry" id="demo-profile-entry" aria-label="Fictional development profile">
-          <div class="demo-entry-copy"><strong>Development demo only</strong><span>Ram · white Mercedes CLA · no phone, email, or real customer data.</span></div>
+          <div class="demo-entry-copy"><strong>Development demo only</strong><span>Ram · red BMW · no phone, email, or real customer data.</span></div>
           <button class="secondary-action" id="profile-enter-demo" type="button" data-enter-demo>Use Ram's demo profile</button>
         </section>
         <div id="profile-form-wrap">
@@ -707,9 +734,9 @@
           const demoMode = localStorage.getItem(PROFILE_MODE_KEY) === 'demo';
           const key = demoMode ? DEMO_PROFILE_KEY : PROFILE_KEY;
           const profile = JSON.parse(localStorage.getItem(key) || 'null');
-          if (!profile || typeof profile.id !== 'string' || !profile.name || !profile.vehicle || !profile.vehicle.make || !profile.vehicle.model || !profile.vehicle.registration) return null;
+          if (!profile || typeof profile.id !== 'string' || !profile.name || !profile.vehicle || !profile.vehicle.make || !profile.vehicle.registration) return null;
           if (demoMode && profile.isDemo !== true) return null;
-          if (!demoMode && (!profile.email || !profile.phone)) return null;
+          if (!demoMode && (!profile.vehicle.model || !profile.email || !profile.phone)) return null;
           return profile;
         } catch (_) { return null; }
       }
@@ -722,7 +749,7 @@
           name: 'Ram',
           email: '',
           phone: '',
-          vehicle: { make: 'Mercedes', model: 'CLA', color: 'white', registration: 'DEMO-KA-001' },
+          vehicle: { make: 'BMW', model: '', color: 'red', registration: 'DEMO-KA-001' },
           isDemo: true,
           authMode: 'demo-preview',
           updatedAt: new Date().toISOString()
@@ -758,8 +785,9 @@
         document.getElementById('profile-car-body').setAttribute('fill', colour.hex);
         document.getElementById('vehicle-plate').textContent = car.registration.toUpperCase().slice(0, 16);
         document.getElementById('vehicle-plate').setAttribute('textLength', '46');
-        animatedCar.setAttribute('aria-label', `${demoMode ? 'Fictional demo' : 'Animated'} ${colour.label} ${car.make} ${car.model} preview with registration ${car.registration}`);
-        document.getElementById('home-car-title').textContent = `${profile.name.split(/\s+/)[0]}'s ${car.make} ${car.model}`;
+        const vehicleName = [car.make, car.model].filter(Boolean).join(' ');
+        animatedCar.setAttribute('aria-label', `${demoMode ? 'Fictional demo' : 'Animated'} ${colour.label} ${vehicleName} preview with registration ${car.registration}`);
+        document.getElementById('home-car-title').textContent = `${profile.name.split(/\s+/)[0]}'s ${vehicleName}`;
         document.getElementById('home-car-subtitle').textContent = `${colour.label} · ${car.registration.toUpperCase()}`;
         document.getElementById('home-car-detail').textContent = demoMode ? 'Fictional demo vehicle · not a real customer record.' : 'Personalized vehicle preview · saved on this device.';
       }
@@ -782,11 +810,29 @@
         if (demoMode) details.push(makeElement('span', '', 'Fictional development profile · no personal contact details'));
         else details.push(makeElement('span', '', `${profile.email} · ${profile.phone}`));
         details.push(
-          makeElement('span', '', `${profile.vehicle.make} ${profile.vehicle.model} · ${colour.label}`),
+          makeElement('span', '', `${[profile.vehicle.make, profile.vehicle.model].filter(Boolean).join(' ')} · ${colour.label}`),
           makeElement('span', '', `Registration ${profile.vehicle.registration.toUpperCase()}`)
         );
         summary.replaceChildren(...details);
       }
+      // Restore the earlier scroll-driven dark-to-bright BMW reveal.
+      const bmwStage = document.getElementById('bmw-preview-stage');
+      let bmwUpdateQueued = false;
+      function updateBMWReveal() {
+        bmwUpdateQueued = false;
+        bmwStage.classList.toggle('effect-ready', !reducedMotion.matches);
+        if (reducedMotion.matches) return;
+        const progress = Math.max(0, Math.min(1, window.scrollY / 180));
+        bmwStage.style.setProperty('--wash-progress', `${(progress * 100).toFixed(2)}%`);
+      }
+      function requestBMWRevealUpdate() {
+        if (!bmwUpdateQueued) { bmwUpdateQueued = true; requestAnimationFrame(updateBMWReveal); }
+      }
+      window.addEventListener('scroll', requestBMWRevealUpdate, { passive:true });
+      window.addEventListener('resize', requestBMWRevealUpdate, { passive:true });
+      if (reducedMotion.addEventListener) reducedMotion.addEventListener('change', requestBMWRevealUpdate);
+      else if (reducedMotion.addListener) reducedMotion.addListener(requestBMWRevealUpdate);
+      requestBMWRevealUpdate();
       function showToast(message) {
         toast.textContent = message;
         toast.classList.add('show');
@@ -829,7 +875,7 @@
         const summaryRows = [
           makeElement('strong', '', profile.name),
           makeElement('span', 'profile-customer-id', `${profile.isDemo ? 'DEMO customer ID' : 'Local customer ID'} · ${profile.id}`),
-          makeElement('span', '', `${profile.vehicle.make} ${profile.vehicle.model} · ${colour.label} · ${profile.vehicle.registration.toUpperCase()}`)
+          makeElement('span', '', `${[profile.vehicle.make, profile.vehicle.model].filter(Boolean).join(' ')} · ${colour.label} · ${profile.vehicle.registration.toUpperCase()}`)
         ];
         summaryRows.push(makeElement('span', '', profile.isDemo ? 'Fictional profile · no personal contact data' : `${profile.email} · ${profile.phone}`));
         summary.replaceChildren(...summaryRows);
@@ -902,7 +948,7 @@
           const address = [booking.address, booking.city, booking.postal].filter(Boolean).join(', ');
           const customer = booking.customer || { name: booking.name || 'Local request', phone: booking.phone || '' };
           const vehicle = booking.vehicle || {};
-          const vehicleLine = vehicle.make ? `${vehicle.make} ${vehicle.model} · ${vehicle.color} · ${vehicle.registration}` : 'Vehicle not linked';
+          const vehicleLine = vehicle.make ? `${[vehicle.make, vehicle.model].filter(Boolean).join(' ')} · ${vehicle.color} · ${vehicle.registration}` : 'Vehicle not linked';
           const contact = `${customer.name}${customer.phone ? ` · ${customer.phone}` : ''}`;
           const propertyLine = booking.property ? `${booking.property}${booking.tower ? ` · ${booking.tower}` : ''}` : '';
           const priceLine = booking.vehicleCategory && booking.price ? `${categoryLabels[booking.vehicleCategory] || booking.vehicleCategory} · ${booking.price}` : '';
