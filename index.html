@@ -312,6 +312,8 @@
     .brand-wordmark { color:#fff; font-family:'Figtree Review', sans-serif; font-size:15px; font-weight:700; letter-spacing:.12em; line-height:1; text-transform:uppercase; white-space:nowrap; }
     .bmw-preview-stage { order:1; position:relative; display:block; height:clamp(135px, 40vw, 180px); margin:10px 0 0; overflow:hidden; border-radius:14px; background:radial-gradient(ellipse at center, #353535 0%, #171717 56%, #0d0d0d 100%); }
     .bmw-preview-stage img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+    .profile-bmw-preview { height:clamp(170px, 48vw, 220px); margin:0 0 18px; }
+    .profile-bmw-preview[hidden] { display:none; }
     .bmw-clean { filter:saturate(1.04) contrast(1.03) drop-shadow(0 10px 12px rgba(0,0,0,.32)); }
     .bmw-dark { display:none; pointer-events:none; filter:brightness(.69) saturate(.66) grayscale(.16) sepia(.2) contrast(1.12) drop-shadow(0 10px 12px rgba(0,0,0,.32)); clip-path:inset(0 0 0 var(--wash-progress, 0%)); }
     .bmw-preview-stage.effect-ready .bmw-dark { display:block; }
@@ -489,8 +491,11 @@
             <p class="form-section-title">Service address</p>
             <div class="field">
               <label for="property">Property / community (optional)</label>
-              <select id="property" name="property" aria-label="Fictional property"><option value="">Fictional property</option></select>
-              <span class="field-hint">Sample address for demonstration only.</span>
+              <select id="property" name="property" aria-label="Fictional property">
+                <option value="">Example Property</option>
+                <option value="Prestige Towers">Prestige Towers (fictional demo)</option>
+              </select>
+              <span class="field-hint">Sample address for demonstration only. Choose Prestige Towers to select a tower.</span>
             </div>
             <div class="field" id="other-property-wrap">
               <label for="property-name">Property / community name <span class="field-hint">(optional)</span></label>
@@ -565,6 +570,10 @@
         <div id="profile-saved" hidden>
           <div class="profile-id-card"><span class="eyebrow" id="profile-id-label">Temporary device-only customer ID</span><strong id="profile-customer-id"></strong><p id="profile-id-note">This ID is local to this profile preview, not a globally verified customer account. The authentication backend must issue the real customer ID.</p></div>
           <div class="profile-summary" id="profile-summary"></div>
+          <div class="bmw-preview-stage profile-bmw-preview" id="profile-bmw-preview-stage" aria-label="Fictional red BMW demo vehicle">
+            <img class="bmw-clean" src="assets/bmw-x6m.webp" alt="Red BMW, an illustrative fictional demo vehicle" width="800" height="569">
+            <img class="bmw-dark" src="assets/bmw-x6m.webp" alt="" aria-hidden="true" width="800" height="569">
+          </div>
           <button class="secondary-action" type="button" id="edit-profile">Update profile and vehicle</button>
           <button class="secondary-action" type="button" id="exit-demo" hidden>Exit demo mode</button>
         </div>
@@ -796,6 +805,7 @@
         const demoMode = profile?.isDemo === true;
         document.getElementById('profile-form-wrap').hidden = Boolean(profile);
         document.getElementById('profile-saved').hidden = !profile;
+        document.getElementById('profile-bmw-preview-stage').hidden = !demoMode;
         document.getElementById('demo-profile-entry').hidden = demoMode;
         document.getElementById('edit-profile').hidden = demoMode;
         document.getElementById('exit-demo').hidden = !demoMode;
@@ -816,14 +826,15 @@
         summary.replaceChildren(...details);
       }
       // Restore the earlier scroll-driven dark-to-bright BMW reveal.
-      const bmwStage = document.getElementById('bmw-preview-stage');
+      const bmwStages = document.querySelectorAll('.bmw-preview-stage');
       let bmwUpdateQueued = false;
       function updateBMWReveal() {
         bmwUpdateQueued = false;
-        bmwStage.classList.toggle('effect-ready', !reducedMotion.matches);
-        if (reducedMotion.matches) return;
         const progress = Math.max(0, Math.min(1, window.scrollY / 180));
-        bmwStage.style.setProperty('--wash-progress', `${(progress * 100).toFixed(2)}%`);
+        bmwStages.forEach(stage => {
+          stage.classList.toggle('effect-ready', !reducedMotion.matches);
+          if (!reducedMotion.matches) stage.style.setProperty('--wash-progress', `${(progress * 100).toFixed(2)}%`);
+        });
       }
       function requestBMWRevealUpdate() {
         if (!bmwUpdateQueued) { bmwUpdateQueued = true; requestAnimationFrame(updateBMWReveal); }
@@ -856,6 +867,7 @@
           renderSlots();
         }
         window.scrollTo({ top: 0, behavior: 'instant' });
+        requestBMWRevealUpdate();
       }
       function startBooking(service = 'foam') {
         const profile = readProfile();
