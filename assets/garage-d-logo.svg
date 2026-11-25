@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 727 461">
+  <defs>
+    <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset=".25" stop-color="#b8c3ca"/>
+      <stop offset=".5" stop-color="#f4f6f7"/>
+      <stop offset=".75" stop-color="#768994"/>
+      <stop offset="1" stop-color="#edf4f7"/>
+    </linearGradient>
+    <linearGradient id="red" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ef655a"/>
+      <stop offset=".38" stop-color="#a8201d"/>
+      <stop offset=".72" stop-color="#6b0d10"/>
+      <stop offset="1" stop-color="#c83a30"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="9"/>
+      <feOffset dy="7"/>
+      <feComponentTransfer><feFuncA type="linear" slope=".8"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <path d="M230 39H348C479 39 538 119 538 230S479 422 348 422H230Z M304 111V350H344C423 350 460 306 460 230S423 111 344 111Z" fill="#172027" fill-rule="evenodd" stroke="url(#metal)" stroke-width="13" stroke-linejoin="round"/>
+    <path d="M249 57H348C465 57 519 127 519 230S465 404 348 404H249Z M286 93V368H344C436 368 479 317 479 230S436 93 344 93Z" fill="url(#red)" fill-rule="evenodd" stroke="#f0b7ad" stroke-opacity=".75" stroke-width="4" stroke-linejoin="round"/>
+  </g>
+</svg>
