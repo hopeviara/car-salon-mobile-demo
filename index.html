@@ -320,9 +320,34 @@
     .bmw-preview-stage.effect-ready .bmw-dark { display:block; }
     @media (prefers-reduced-motion:reduce) { .bmw-preview-stage.effect-ready .bmw-dark { display:none; } }
     .brand-wordmark span { color:inherit; font-weight:inherit; }
+    /* Warm accents on the existing charcoal theme. */
+    :root { --warm-accent:#ffb198; --warm-border:#df6c49; }
+    .eyebrow, .form-section-title, .benefit-number, .back-button { color:var(--warm-accent); }
+    .service-icon, .empty-icon { background:#301b18; color:var(--warm-accent); border-color:#704033; }
+    .service-arrow { color:var(--warm-accent); }
+    .service-card:hover, .service-card:focus-visible, .profile-pricing-link:hover { border-color:var(--warm-border); }
+    .primary-action, .success-mark { background:linear-gradient(105deg,#a91c10,#a83a12); color:#fff; }
+    .primary-action:not(:disabled):hover { background:linear-gradient(105deg,#b01d0d,#ae390d); }
+    .secondary-action:hover, .top-action:hover, .price-select:hover { border-color:var(--warm-border); }
+    .price-select { border-color:#a6563d; color:#ffe6de; }
+    .booking-price { border-color:#75402f; background:#241713; color:#ffe4d9; }
+    .slot[aria-pressed="true"] { background:#381c16; border-color:#f29c7d; color:#fff1eb; box-shadow:inset 0 0 0 1px #f29c7d; }
+    .tab.active { background:#301915; color:#ffe4d9; box-shadow:inset 0 2px 0 #e17856; }
+    .local-badge { border-color:#a6563d; color:#ffe6de; }
+    .demo-confirm input { accent-color:#d45b39; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible { outline-color:#ffb198; }
+    /* The startup film is separate from the Home garage reveal. */
+    body.intro-playing { overflow:hidden; }
+    .startup-intro { position:fixed; inset:0; z-index:100; display:grid; place-items:center; background:#000; }
+    .startup-intro video { width:100%; max-height:100%; object-fit:contain; }
+    .startup-skip { position:absolute; top:max(18px,env(safe-area-inset-top)); right:max(18px,env(safe-area-inset-right)); min-width:76px; min-height:44px; padding:10px 16px; border:1px solid #df6c49; border-radius:999px; background:rgba(28,18,16,.92); color:#fff; font-size:13px; font-weight:700; cursor:pointer; }
   </style>
 </head>
 <body>
+  <section class="startup-intro" id="startup-intro" role="dialog" aria-modal="true" aria-label="Car Salon introduction" hidden>
+    <video id="startup-video" data-src="assets/car-salon-startup-intro.mp4" preload="none" muted playsinline aria-hidden="true"></video>
+    <button class="startup-skip" id="startup-skip" type="button">Skip intro</button>
+  </section>
   <div class="app-shell">
     <header class="topbar">
       <a class="brand" href="#home" aria-label="Car Salon home" data-nav="home">
@@ -606,7 +631,56 @@
   <script>
     (() => {
       'use strict';
-      // Place the existing car artwork first on Home, without an interstitial or blocking interaction.
+      const intro = document.getElementById('startup-intro');
+      const video = document.getElementById('startup-video');
+      const skip = document.getElementById('startup-skip');
+      const app = document.querySelector('.app-shell');
+      const tabs = document.querySelector('.tabbar');
+      const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const key = 'car-salon.startup-intro-seen.v1';
+      window.carSalonIntroActive = false;
+      let seen = false;
+      try { seen = sessionStorage.getItem(key) === '1'; } catch (_) { /* Storage may be unavailable. */ }
+      if (seen) return;
+      try { sessionStorage.setItem(key, '1'); } catch (_) { /* The intro still works without storage. */ }
+      if (motion.matches) return;
+      window.carSalonIntroActive = true;
+      app.inert = true;
+      tabs.inert = true;
+      document.body.classList.add('intro-playing');
+      intro.hidden = false;
+      let timeout;
+      function finishIntro() {
+        if (!window.carSalonIntroActive) return;
+        window.carSalonIntroActive = false;
+        clearTimeout(timeout);
+        const wasFocused = document.activeElement === skip;
+        video.pause();
+        intro.hidden = true;
+        app.inert = false;
+        tabs.inert = false;
+        document.body.classList.remove('intro-playing');
+        if (wasFocused) document.querySelector('.brand').focus();
+        window.dispatchEvent(new Event('car-salon-intro-finished'));
+      }
+      skip.addEventListener('click', finishIntro);
+      video.addEventListener('ended', finishIntro, { once:true });
+      video.addEventListener('error', finishIntro, { once:true });
+      if (motion.addEventListener) motion.addEventListener('change', () => { if (motion.matches) finishIntro(); });
+      timeout = setTimeout(finishIntro, 15000);
+      video.src = video.dataset.src;
+      video.muted = true;
+      requestAnimationFrame(() => skip.focus());
+      try {
+        const playing = video.play();
+        if (playing && typeof playing.catch === 'function') playing.catch(finishIntro);
+      } catch (_) { finishIntro(); }
+    })();
+  </script>
+  <script>
+    (() => {
+      'use strict';
+      // Place the existing car artwork first on Home.
       document.getElementById('home-view').prepend(document.getElementById('vehicle-showcase'));
       const heroVideo = document.getElementById('hero-video');
       const heroStage = heroVideo.closest('.car-stage');
@@ -621,6 +695,7 @@
       }
       function updateHeroMotion() {
         if (reducedMotion.matches) { showHeroFallback(); return; }
+        if (window.carSalonIntroActive) return;
         if (heroStarted) return;
         heroStarted = true;
         heroStage.classList.add('video-running');
@@ -640,6 +715,7 @@
       heroVideo.addEventListener('error', showHeroFallback);
       if (reducedMotion.addEventListener) reducedMotion.addEventListener('change', updateHeroMotion);
       else if (reducedMotion.addListener) reducedMotion.addListener(updateHeroMotion);
+      window.addEventListener('car-salon-intro-finished', updateHeroMotion, { once:true });
       updateHeroMotion();
       const STORAGE_KEY = 'gaadi-da-dhobi.bookings.v1';
       const DEMO_STORAGE_KEY = 'gaadi-da-dhobi.demo-bookings.v1';
