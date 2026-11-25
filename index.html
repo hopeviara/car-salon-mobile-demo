@@ -224,8 +224,7 @@
     .brand-logo { display:flex; align-items:center; gap:4px; }
     .brand-logo img { display:block; width:88px; height:auto; }
     .brand-salon { font-family:'Salon Script', cursive; font-size:24px; line-height:1; color:#e7e9eb; background:linear-gradient(180deg,#fff 3%,#d6d9dd 32%,#858b91 49%,#f9fafb 66%,#aeb4ba 100%); background-clip:text; -webkit-background-clip:text; -webkit-text-fill-color:transparent; filter:drop-shadow(0 1px 1px #000); }
-    .hero-wordmark { position:absolute; z-index:2; top:16%; left:50%; transform:translateX(-50%); display:block; width:30%; max-width:145px; height:auto; pointer-events:none; opacity:1; transition:opacity .18s ease-out; text-align:center; }
-    .hero-wordmark > img { display:block; width:100%; height:auto; }
+    .hero-wordmark { position:absolute; z-index:2; top:43%; left:50%; transform:translate(-50%, -50%); display:block; width:30%; max-width:145px; height:auto; pointer-events:none; opacity:1; transition:opacity .18s ease-out; text-align:center; }
     .hero-name { display:flex; align-items:center; justify-content:center; gap:4px; margin-top:3px; white-space:nowrap; }
     .hero-name .hero-car-lettering { display:block; width:clamp(35px, 10vw, 47px); height:auto; flex:none; filter:drop-shadow(0 1px 1px #000); }
     .hero-salon { display:block; font-family:'Salon Script', cursive; font-size:clamp(16px, 5vw, 24px); line-height:1; color:#e7e9eb; background:linear-gradient(180deg,#fff 3%,#d6d9dd 32%,#858b91 49%,#f9fafb 66%,#aeb4ba 100%); background-clip:text; -webkit-background-clip:text; -webkit-text-fill-color:transparent; filter:drop-shadow(0 1px 1px #000); }
@@ -364,7 +363,7 @@
           <div class="car-stage">
             <img class="hero-still" src="assets/gdd1-shutter-poster.jpg" alt="A closed garage shutter, from the opening video" width="1280" height="720">
             <video class="hero-video" id="hero-video" src="assets/gdd1-hero.webm" poster="assets/gdd1-shutter-poster.jpg" preload="metadata" muted playsinline aria-hidden="true"></video>
-            <span class="hero-wordmark"><img src="assets/garage-d-logo.svg" alt="D logo" width="727" height="461"><span class="hero-name" role="img" aria-label="Car Salon"><img class="hero-car-lettering" src="assets/garage-car-lettering.png" alt="" width="389" height="98"><span class="hero-salon" aria-hidden="true">Salon</span></span></span>
+            <span class="hero-wordmark"><span class="hero-name" role="img" aria-label="Car Salon"><img class="hero-car-lettering" src="assets/garage-car-lettering.png" alt="" width="389" height="98"><span class="hero-salon" aria-hidden="true">Salon</span></span></span>
             <img class="car-image" id="default-car" src="assets/bmw-x6m.webp" alt="Illustrative red BMW X6 M sample art, not a customer vehicle" width="1800" height="1280" fetchpriority="high">
             <svg class="profile-car" id="profile-car" viewBox="0 0 260 150" role="img" aria-label="Personalized vehicle animation" hidden>
               <ellipse cx="132" cy="120" rx="105" ry="11" fill="rgba(0,0,0,.38)"/>
